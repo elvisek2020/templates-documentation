@@ -76,6 +76,76 @@ Image name:
 {REGISTRY}/{GITHUB_OWNER}/{IMAGE_NAME}
 ```
 
+**Kompletní workflow příklad:**
+
+Vytvoř soubor `.github/workflows/docker.yml` s následujícím obsahem:
+
+```yaml
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - {BRANCH}
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: {REGISTRY}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: {REGISTRY}/{GITHUB_OWNER}/{IMAGE_NAME}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+```
+
+**Poznámky k workflow:**
+- Automaticky se spustí při push do `{BRANCH}` branch
+- Podporuje multi-arch build pro `linux/amd64` a `linux/arm64`
+- Používá GitHub Actions cache pro rychlejší buildy
+- Taguje image jako `latest` (pouze na default branch) a `sha-<commit-sha>`
+- Umožňuje ruční spuštění přes `workflow_dispatch`
+
+**Nahrazení placeholders:**
+- `{BRANCH}` → název branch (obvykle `main`)
+- `{REGISTRY}` → registry (obvykle `ghcr.io`)
+- `{GITHUB_OWNER}` → GitHub username nebo organizace
+- `{IMAGE_NAME}` → název Docker image
+
 ---
 
 ### C) Docker Compose (runtime – POVINNÉ STANDARDY)
