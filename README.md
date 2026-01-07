@@ -1,6 +1,6 @@
-# Šablony pro webové aplikace
+# Šablony pro prompty pro Cursor
 
-Kolekce univerzálních šablon a dokumentace pro vytváření standardizovaných webových aplikací.
+Kolekce univerzálních šablon a dokumentace pro vytváření standardizovaných webových aplikací pomocí Cursor AI.
 
 ## 📁 Struktura projektu
 
@@ -17,7 +17,7 @@ Kolekce univerzálních šablon a dokumentace pro vytváření standardizovanýc
 
 ---
 
-### `_TEMPLATE_GAME_PROJECT/`
+### `_TEMPLATE_WEB_GAME_APPLICATION/`
 Šablony pro webové herní aplikace s real-time komunikací přes WebSocket.
 
 **Soubory:**
@@ -78,17 +78,17 @@ Vytvoř [název komponenty] podle šablony z @_TEMPLATES_WEB_APPLICATION/TEMPLAT
 
 **Prompt pro Cursor - Login stránka:**
 ```
-Vytvoř login stránku podle šablony z @_TEMPLATE_GAME_PROJECT/TEMPLATE_LOGIN_PAGE.md
+Vytvoř login stránku podle šablony z @_TEMPLATE_WEB_GAME_APPLICATION/TEMPLATE_LOGIN_PAGE.md
 ```
 
 **Prompt pro Cursor - Lobby stránka:**
 ```
-Vytvoř lobby stránku podle šablony z @_TEMPLATE_GAME_PROJECT/TEMPLATE_LOBBY_PAGE.md
+Vytvoř lobby stránku podle šablony z @_TEMPLATE_WEB_GAME_APPLICATION/TEMPLATE_LOBBY_PAGE.md
 ```
 
 **Prompt pro Cursor - Herní stránka:**
 ```
-Vytvoř herní stránku podle šablony z @_TEMPLATE_GAME_PROJECT/TEMPLATE_GAME_PAGE.md. 
+Vytvoř herní stránku podle šablony z @_TEMPLATE_WEB_GAME_APPLICATION/TEMPLATE_GAME_PAGE.md. 
 Použij [Varianta 1 pro karetní hry / Varianta 2 pro deskové hry]
 ```
 
