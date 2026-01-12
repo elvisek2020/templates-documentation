@@ -9,23 +9,24 @@ Používej ji jako **copy-paste zadání do Cursoru**. Hodnoty v `{}` nahraď po
 
 ## 0) Kontext
 
-Projekt: `{PROJECT_NAME}`  
-GitHub repo: `{GITHUB_OWNER}/{GITHUB_REPO}`  
-Default branch: `{BRANCH=main}`  
-Tech stack: `{STACK=python/docker/js/…}`  
+Projekt: `{PROJECT_NAME}`
+GitHub repo: `{GITHUB_OWNER}/{GITHUB_REPO}`
+Default branch: `{BRANCH=main}`
+Tech stack: `{STACK=python/docker/js/…}`
 
-Registry: `{REGISTRY=ghcr.io}`  
-Image name: `{IMAGE_NAME}`  
-Image visibility: `{PUBLIC/PRIVATE}`  
+Registry: `{REGISTRY=ghcr.io}`
+Image name: `{IMAGE_NAME}`
+Image visibility: `{PUBLIC/PRIVATE}`
 
-Cíl nasazení: **Docker Compose**  
-Nasazení za reverse proxy (NPM/Traefik/Caddy): `{YES/NO}`  
+Cíl nasazení: **Docker Compose**
+Nasazení za reverse proxy (NPM/Traefik/Caddy): `{YES/NO}`
 
 ---
 
 ## 1) Úkoly pro Cursor
 
 ### A) Git inicializace + práce s repozitářem
+
 - Inicializuj git repo, pokud ještě neexistuje.
 - Připrav `.gitignore` odpovídající `{STACK}`.
 - Nastav branch `{BRANCH}`.
@@ -33,7 +34,7 @@ Nasazení za reverse proxy (NPM/Traefik/Caddy): `{YES/NO}`
   ```bash
   # SSH (doporučeno):
   git remote add origin git@github.com:{GITHUB_OWNER}/{GITHUB_REPO}.git
-  
+
   # Nebo HTTPS:
   git remote add origin https://github.com/{GITHUB_OWNER}/{GITHUB_REPO}.git
   ```
@@ -44,11 +45,13 @@ Nasazení za reverse proxy (NPM/Traefik/Caddy): `{YES/NO}`
 ### B) GitHub Actions – standardní workflow (GHCR + multi-arch)
 
 Vytvoř nebo zkontroluj:
+
 ```
 .github/workflows/docker.yml
 ```
 
 Workflow **musí**:
+
 - běžet při `push` do `{BRANCH}`
 - podporovat **multi-arch build**:
   - `linux/amd64`
@@ -72,6 +75,7 @@ Workflow **musí**:
   ```
 
 Image name:
+
 ```text
 {REGISTRY}/{GITHUB_OWNER}/{IMAGE_NAME}
 ```
@@ -134,6 +138,7 @@ jobs:
 ```
 
 **Poznámky k workflow:**
+
 - Automaticky se spustí při push do `{BRANCH}` branch
 - Podporuje multi-arch build pro `linux/amd64` a `linux/arm64`
 - Používá GitHub Actions cache pro rychlejší buildy
@@ -141,6 +146,7 @@ jobs:
 - Umožňuje ruční spuštění přes `workflow_dispatch`
 
 **Nahrazení placeholders:**
+
 - `{BRANCH}` → název branch (obvykle `main`)
 - `{REGISTRY}` → registry (obvykle `ghcr.io`)
 - `{GITHUB_OWNER}` → GitHub username nebo organizace
@@ -155,7 +161,12 @@ Uprav nebo vytvoř `docker-compose.yml` tak, aby splňoval **povinné položky**
 ```yaml
 services:
   app:
-    image: {REGISTRY}/{GITHUB_OWNER}/{IMAGE_NAME}:latest
+    # Pro vývoj použijte build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Pro produkci použijte image z GHCR:
+    # image: {REGISTRY}/{GITHUB_OWNER}/{IMAGE_NAME}:latest
     container_name: {CONTAINER_NAME}
     hostname: {HOSTNAME}
     restart: unless-stopped
@@ -170,6 +181,7 @@ services:
       start_period: 10s
       # Poznámka: Pokud image neobsahuje curl, použijte jiný test (např. wget nebo vlastní healthcheck script)
 ```
+
 ```
 
 Pokud je aplikace nasazena **za reverse proxy** (NPM/Traefik/Caddy), přidej do service:
@@ -178,15 +190,14 @@ Pokud je aplikace nasazena **za reverse proxy** (NPM/Traefik/Caddy), přidej do 
 services:
   app:
     # ... ostatní konfigurace ...
-    networks:
-      - proxy_network
+networks:
+  - proxy_network
 
 networks:
   proxy_network:
     external: true
 ```
 
-❗ Nepoužívej `build:` – vždy `image:`  
 ❗ Nepřidávej `volumes`, pokud to není výslovně vyžadováno
 
 ---
@@ -196,30 +207,50 @@ networks:
 Do `README.md` doplň nebo zkontroluj sekci **Deployment**:
 
 Musí obsahovat:
+
 - nasazení pomocí **Docker Compose**
 - použití `docker-compose.yml`
-- spuštění:
+
+**Pro vývoj (lokální build):**
+
+- V `docker-compose.yml` použijte `build` sekci (aktivní ve výchozí konfiguraci)
+- Spuštění:
+
   ```bash
   docker compose up -d
   ```
-- update:
+- Rebuild po změnách:
+
+  ```bash
+  docker compose up -d --build
+  ```
+
+**Pro produkci (image z GHCR):**
+
+- V `docker-compose.yml` zakomentujte `build` sekci a odkomentujte `image`:
+
+  ```yaml
+  services:
+    app:
+      # build:
+      #   context: .
+      #   dockerfile: Dockerfile
+      image: {REGISTRY}/{GITHUB_OWNER}/{IMAGE_NAME}:latest
+  ```
+- Spuštění:
+
+  ```bash
+  docker compose up -d
+  ```
+- Update:
+
   ```bash
   docker compose pull
   docker compose up -d
   ```
-- rollback na konkrétní verzi:
-  V `docker-compose.yml` změňte image tag:
-  ```yaml
-  services:
-    app:
-      image: {REGISTRY}/{GITHUB_OWNER}/{IMAGE_NAME}:sha-<commit-sha>
-  ```
-  Poté spusťte:
-  ```bash
-  docker compose up -d
-  ```
 
 Pokud je image **PRIVATE**, přidej poznámku:
+
 - nutnost autentizace vůči GHCR
 - použití PAT (Personal Access Token) nebo Docker login:
   ```bash
@@ -236,9 +267,11 @@ Do `.gitignore` **musí být přidáno**:
 # Lokální pomocné adresáře – nikdy necommitovat
 _backup/
 _docs/
+.gitignore
 ```
 
 Tyto adresáře slouží pouze pro:
+
 - lokální zálohy
 - pracovní poznámky
 - dočasné exporty
@@ -267,6 +300,7 @@ Pokud nejsou tyto body jasně definované, **zastav se a vyžádej rozhodnutí**
 ## 4) Povinné kontroly
 
 Před dokončením zkontroluj:
+
 - ✅ workflow obsahuje GHCR login + buildx
 - ✅ image name je konzistentní:
   - workflow
@@ -285,6 +319,7 @@ Před dokončením zkontroluj:
 ## 5) Výstup, který má Cursor dodat
 
 Na konci vždy:
+
 1. Seznam přidaných / upravených souborů
 2. Co má uživatel udělat po `git push`
 3. Co se stane automaticky (CI/CD)

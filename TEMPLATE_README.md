@@ -83,67 +83,7 @@ docker compose pull
 docker compose up -d
 ```
 
-#### Rollback na konkrétní verzi
-
-V `docker-compose.yml` změňte image tag:
-
-```yaml
-services:
-  app:
-    image: ghcr.io/[username]/[repo-name]:sha-<commit-sha>
-```
-
-### GitHub a CI/CD
-
-#### Inicializace repozitáře
-
-1. **Vytvoření GitHub repozitáře**:
-   ```bash
-   # Vytvořte nový repozitář na GitHubu
-   # Název: [repo-name]
-   ```
-
-2. **Inicializace lokálního repozitáře**:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/[username]/[repo-name].git
-   git push -u origin main
-   ```
-
-3. **Vytvoření GitHub Actions workflow**:
-   
-   Vytvořte soubor `.github/workflows/docker.yml` s workflow pro automatické buildy Docker image. Příklad workflow najdete v dokumentaci GitHub Actions nebo v existujících projektech.
-
-4. **Nastavení viditelnosti image**:
-   - Po prvním buildu jděte na GitHub → Packages
-   - Najděte vytvořený package `[repo-name]`
-   - V Settings → Change visibility nastavte na **Public**
-
-#### Commitování změn a automatické buildy
-
-1. **Proveďte změny v kódu**
-
-2. **Commit a push**:
-   ```bash
-   git add .
-   git commit -m "Popis změn"
-   git push origin main
-   ```
-
-3. **Automatický build**:
-   - Po push do `main` branch se automaticky spustí GitHub Actions workflow
-   - Vytvoří se Docker image pro `linux/amd64` a `linux/arm64`
-   - Image se nahraje do GHCR
-   - Taguje se jako `latest` a `sha-<commit-sha>`
-
-4. **Sledování buildu**:
-   - GitHub → Actions → zobrazí se běžící workflow
-   - Po dokončení je image dostupná na `ghcr.io/[username]/[repo-name]:latest`
-
-#### GitHub Container Registry (GHCR)
+### GitHub Container Registry (GHCR)
 
 Aplikace je dostupná jako Docker image z GitHub Container Registry:
 
@@ -167,18 +107,21 @@ Image je **veřejný** (public), takže není potřeba autentizace pro pull.
 ### Technický stack
 
 **Backend:**
+
 - FastAPI (Python 3.11+)
 - WebSockets pro real-time komunikaci
 - Uvicorn jako ASGI server
 - Python logging s konfigurovatelnou úrovní
 
 **Frontend:**
+
 - [Vanilla JavaScript / React / Vue / atd.]
 - HTML5 + CSS3
 - WebSocket API
 - [Další technologie]
 
 **Deployment:**
+
 - Docker
 - Docker Compose
 
@@ -196,8 +139,6 @@ Image je **veřejný** (public), takže není potřeba autentizace pro pull.
 │   ├── style.css              # Styly
 │   ├── app.js                 # Frontend JavaScript
 │   └── [další soubory]
-├── _docs/
-│   └── [dokumentační soubory]
 ├── main.py                    # FastAPI aplikace + WebSocket endpoint
 ├── requirements.txt           # Python závislosti
 ├── Dockerfile                 # Docker image definice
@@ -217,20 +158,12 @@ Detailní popis API zpráv najdete v dokumentaci aplikace (pokud existuje složk
 
 #### Přidání nových funkcí
 
-1. **Backend změny**: 
-   - [Kde se nachází logika]: `[cesta/k_souboru]`
-   - [Další místa]: `[cesta/k_souboru]`
+1. **Backend změny**:
+2. **Frontend změny**:
 
-2. **Frontend změny**: 
    - UI logika: `static/app.js`
    - HTML struktura: `static/index.html`
    - Styly: `static/style.css` (používejte box-style komponenty)
-
-#### Testování
-
-- **Lokální testování**: Spusťte aplikaci pomocí `docker compose up` a otestujte všechny funkce
-- **WebSocket testování**: Použijte nástroje jako Postman nebo websocat pro testování WebSocket komunikace
-- [Přidejte další typy testování specifické pro vaši aplikaci]
 
 #### Debugging
 
@@ -251,21 +184,11 @@ Pro produkci doporučujeme nastavit `LOG_LEVEL=WARNING` nebo `LOG_LEVEL=ERROR`.
 ### 🎨 UI/UX
 
 Aplikace používá **box-style komponenty** pro konzistentní vzhled:
+
 - Všechny komponenty mají boxový vzhled s rámečky
 - Konzistentní barvy a rozestupy
 - Responzivní design
 - [Přidejte další UI charakteristiky specifické pro vaši aplikaci]
-
-### 📝 Historie změn
-
-#### V[X.X.X] ([datum])
-- ✅ **[Typ změny]**: [Popis změny]
-- ✅ **[Typ změny]**: [Popis změny]
-
-*Příklad:*
-#### V1.0.0 (2024-01-15)
-- ✅ **Nové**: Počáteční verze aplikace
-- ✅ **Oprava**: Oprava chyby v WebSocket připojení
 
 ### 🐛 Známé problémy
 
@@ -288,3 +211,5 @@ Tento projekt je vytvořen pro vzdělávací účely.
 
 Pokud projekt přijímá příspěvky, přidejte zde instrukce pro přispěvatele. Jinak tuto sekci odstraňte.
 
+[Kde se nachází logika]: `[cesta/k_souboru]`
+[Další místa]: `[cesta/k_souboru]`
