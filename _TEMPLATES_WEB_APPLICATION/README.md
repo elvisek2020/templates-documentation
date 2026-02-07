@@ -38,10 +38,39 @@ Kompletní popis technologií a architektury:
 - Databáze (SQLite)
 - Autentizace a autorizace (OAuth2)
 - Modulární systém
-- Deployment (Docker)
+- Deployment (odkaz na Docker)
 - Best practices
 
 **Přečtěte si** pro pochopení technologického stacku.
+
+### [TEMPLATE_DOCKER.md](./TEMPLATE_DOCKER.md) - Docker
+Kontejnerizace a orchestrace (vychází z reálných projektů Nexus, Fit, Game):
+- Dockerfile (non-root, healthcheck, WeasyPrint, verze buildu)
+- Docker Compose (minimální varianta, image z registry, volumes pro vývoj)
+- Přístup k hostiteli (DB na hostu), proměnné prostředí
+- OAuth2 Proxy + Redis (volitelně)
+- Best practices
+
+**Použijte** při nasazování nebo úpravě Dockeru (build, compose, env).
+
+### [TEMPLATE_MENU.md](./TEMPLATE_MENU.md) - Šablona menu
+Průvodce hlavní navigací a přidáním položek do menu:
+- Struktura menu (desktop + mobil)
+- Anatomie položky (href, ikona, label, active)
+- Vzory viditelnosti (vždy / podle modulu / podle role / vlastní podmínka)
+- Aktivní stav a best practices
+
+**Použijte** při přidávání nebo úpravě položek v hlavním menu.
+
+### [TEMPLATE_FOOTER.md](./TEMPLATE_FOOTER.md) - Šablona zápatí
+Průvodce zápatím stránky (footer):
+- Umístění a základní struktura
+- Minimální zápatí, zápatí s verzí
+- Odkaz na changelog pro administrátory, více odkazů
+- Rozšíření přes blok a styly
+- Best practices
+
+**Použijte** při úpravě nebo rozšíření zápatí v `base.html`.
 
 ## 🚀 Rychlý start
 
@@ -105,11 +134,14 @@ Kompletní popis technologií a architektury:
 ## 📖 Struktura dokumentů
 
 ```
-_docs/
-├── README.md                    # Tento soubor - přehled dokumentace
-├── TEMPLATE_LAYOUT.md          # Šablona layoutu a struktury stránek
-├── TEMPLATE_COMPONENTS.md      # Šablona komponent UI
-└── TEMPLATE_TECHNOLOGY.md      # Technologický stack a architektura
+_TEMPLATES_WEB_APPLICATION/
+├── README.md                 # Tento soubor – přehled dokumentace
+├── TEMPLATE_LAYOUT.md        # Šablona layoutu a struktury stránek
+├── TEMPLATE_COMPONENTS.md    # Šablona komponent UI
+├── TEMPLATE_TECHNOLOGY.md    # Technologický stack a architektura
+├── TEMPLATE_DOCKER.md       # Docker (Dockerfile, Compose, OAuth2)
+├── TEMPLATE_MENU.md          # Šablona menu a navigace
+└── TEMPLATE_FOOTER.md        # Šablona zápatí stránky
 ```
 
 ## ❓ Otázky?

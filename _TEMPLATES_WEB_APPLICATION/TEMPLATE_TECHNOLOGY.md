@@ -438,29 +438,14 @@ for slug, app_module in registry.items():
 
 ### Docker
 
-**Účel:** Kontejnerizace aplikace
+**Účel:** Kontejnerizace a orchestrace aplikace (non-root uživatel, healthcheck, volumes pro data).
 
-**Struktura:**
-- `Dockerfile` - Definice image
-- `docker-compose.yml` - Orchestrace služeb
-- Multi-stage build pro optimalizaci
+**Doporučený setup:**
 
-**Základní struktura:**
+- **Dockerfile:** Python 3.12-slim, běh jako non-root (UID 1000), minimálně `ca-certificates`, `sqlite3`, `curl` (healthcheck). Vstupní bod: `uvicorn` s `--proxy-headers` a `--forwarded-allow-ips` pro provoz za reverse proxy.
+- **Docker Compose:** Služba aplikace s healthcheckem, env z `.env`, volume `./data:/app/data`. Volitelně OAuth2 proxy + Redis pro autentizaci přes Entra ID.
 
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY app/ /app/app/
-COPY static/ /app/static/
-COPY templates/ /app/templates/
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
+Kompletní popis (Dockerfile, docker-compose, proměnné prostředí, OAuth2 proxy, best practices) je v samostatném dokumentu: **[TEMPLATE_DOCKER.md](./TEMPLATE_DOCKER.md)**.
 
 ### Environment proměnné
 
