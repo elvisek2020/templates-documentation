@@ -1,18 +1,15 @@
-# Šablona zápatí - Zápatí stránky
+# Šablona zápatí – Zápatí stránky
 
-Tento dokument popisuje standardizovanou strukturu zápatí (footer) stránky. Použijte tyto vzory pro konzistentní zápatí napříč aplikací.
+Tento dokument popisuje strukturu zápatí (footer) podle aktuálního designu aplikace. Zápatí je součástí `base.html` a používá Tailwind CSS.
 
 ## 📋 Obsah
 
 1. [Umístění a účel](#umístění-a-účel)
-2. [Základní struktura](#základní-struktura)
-3. [Minimální zápatí](#minimální-zápatí)
-4. [Zápatí s verzí aplikace](#zápatí-s-verzí-aplikace)
-5. [Zápatí s odkazem pro administrátory](#zápatí-s-odkazem-pro-administrátory)
-6. [Zápatí s více odkazy](#zápatí-s-více-odkazy)
-7. [Rozšíření přes blok](#rozšíření-přes-blok)
-8. [Styly a konvence](#styly-a-konvence)
-9. [Best practices](#best-practices)
+2. [Aktuální struktura](#aktuální-struktura)
+3. [Verze aplikace](#verze-aplikace)
+4. [Rozšíření přes blok](#rozšíření-přes-blok)
+5. [Varianty a doplňky](#varianty-a-doplňky)
+6. [Best practices](#best-practices)
 
 ---
 
@@ -20,216 +17,154 @@ Tento dokument popisuje standardizovanou strukturu zápatí (footer) stránky. P
 
 Zápatí se zobrazuje **jednou** v základní šabloně (`base.html`), pod hlavním obsahem (`<main>`).
 
-| Vlastnost | Popis |
-|-----------|--------|
-| **Umístění** | Na konci stránky, pod `<main class="container">` |
-| **Účel** | Informace o aplikaci, verze, odkazy (changelog, licence), copyright |
+| Vlastnost   | Popis |
+|------------|--------|
+| **Umístění** | Na konci stránky, pod `<main>`, před uzavíracím `</body>` |
+| **Účel**     | Název aplikace, verze (z `version.json`), volitelně odkazy |
 | **Viditelnost** | Na všech stránkách dědících od `base.html` |
 
-**Pravidlo:** Zápatí je součástí `base.html`; jednotlivé stránky ho nemusí definovat, pokud nevyužívají blok pro rozšíření.
+Jednotlivé stránky zápatí nemusí definovat; rozšíření jen tam, kde je potřeba vlastní obsah (blok `footer`).
 
 ---
 
-## Základní struktura
+## Aktuální struktura
 
-Zápatí používá sémantický element `<footer>` a kontejner pro zarovnání šířky s obsahem stránky.
-
-### Kostra
+Zápatí používá **Tailwind třídy**: ohraničení shora, středový text, menší písmo, šedá barva.
 
 ```html
-<footer class="footer">
-    <div class="container">
-        <!-- Obsah zápatí -->
-    </div>
-</footer>
-```
-
-**Poznámka:** Třída `.footer` a `.container` by měly být definované v hlavním CSS tak, aby zápatí mělo konzistentní vzhled (ohraničení, barva textu, padding) a šířku shodnou s `<main>`.
-
----
-
-## Minimální zápatí
-
-Jedna řádka textu, středově zarovnaná.
-
-```html
-<footer style="margin-top: 0; padding: 0.25rem 0; border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-light); font-size: 0.875rem; line-height: 1.2;">
-    <div class="container" style="padding-top: 0.25rem; padding-bottom: 0.25rem;">
-        <p style="margin: 0; padding: 0; line-height: 1.2;">
-            Název aplikace • © 2025 Firma
-        </p>
-    </div>
-</footer>
-```
-
----
-
-## Zápatí s verzí aplikace
-
-Zobrazení čísla nebo názvu verze (proměnná z backendu, např. `app_version`).
-
-```html
-<footer style="margin-top: 0; padding: 0.25rem 0; border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-light); font-size: 0.875rem; line-height: 1.2;">
-    <div class="container" style="padding-top: 0.25rem; padding-bottom: 0.25rem;">
-        <p style="margin: 0; padding: 0; line-height: 1.2;">
-            Název aplikace • Verze {{ app_version }}
-        </p>
-    </div>
-</footer>
-```
-
-**Backend:** Do kontextu šablony předávat proměnnou `app_version` (např. z `app/version.py` nebo konfigurace).
-
----
-
-## Zápatí s odkazem pro administrátory
-
-Verze je pro všechny; pro administrátory je verze klikací a vede na changelog (nebo jinou stránku).
-
-```html
-<footer style="margin-top: 0; padding: 0.25rem 0; border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-light); font-size: 0.875rem; line-height: 1.2;">
-    <div class="container" style="padding-top: 0.25rem; padding-bottom: 0.25rem;">
-        <p style="margin: 0; padding: 0; line-height: 1.2; word-wrap: break-word; overflow-wrap: break-word;">
-            🤖 Web poháněn umělou inteligencí • Powered by MND •
-            {% if user and user.role.value == 'admin' %}
-            <a href="/changelog" style="color: inherit; text-decoration: underline;">Verze {{ app_version }}</a>
-            {% else %}
-            Verze {{ app_version }}
-            {% endif %}
-        </p>
-    </div>
-</footer>
-```
-
-**Pravidlo:** Odkaz neměnit barvu (zachovat `color: inherit`), pouze podtržení pro zviditelnění.
-
----
-
-## Zápatí s více odkazy
-
-Více textových bloků nebo odkazů oddělených oddělovačem (např. `•`).
-
-```html
-<footer style="margin-top: 0; padding: 0.25rem 0; border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-light); font-size: 0.875rem; line-height: 1.2;">
-    <div class="container" style="padding-top: 0.25rem; padding-bottom: 0.25rem;">
-        <p style="margin: 0; padding: 0; line-height: 1.2;">
-            <a href="/changelog" style="color: inherit; text-decoration: underline;">Changelog</a>
-            •
-            <a href="/privacy" style="color: inherit; text-decoration: underline;">Ochrana soukromí</a>
-            •
-            Verze {{ app_version }}
-        </p>
-    </div>
-</footer>
-```
-
-### Více řádků
-
-```html
-<footer style="margin-top: 0; padding: 0.5rem 0; border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-light); font-size: 0.875rem; line-height: 1.4;">
-    <div class="container" style="padding-top: 0.25rem; padding-bottom: 0.25rem;">
-        <p style="margin: 0 0 0.25rem 0; padding: 0;">
-            Název aplikace • Powered by Firma
-        </p>
-        <p style="margin: 0; padding: 0;">
-            <a href="/changelog" style="color: inherit; text-decoration: underline;">Verze {{ app_version }}</a>
-        </p>
-    </div>
-</footer>
-```
-
----
-
-## Rozšíření přes blok
-
-Má-li mít konkrétní stránka v zápatí vlastní obsah (např. dodatečné odkazy), v `base.html` umístěte volitelný blok uvnitř `<footer>`:
-
-```html
-<footer class="footer" ...>
-    <div class="container" ...>
-        <p ...>
-            <!-- Běžný obsah zápatí -->
-        </p>
+<footer class="border-t border-gray-200 mt-auto py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+        <p class="m-0">{{ app_name }}{% if app_version %} • Verze {{ app_version }}{% endif %}</p>
         {% block footer %}{% endblock %}
     </div>
 </footer>
 ```
 
-Ve stránce pak lze doplnit vlastní řádek nebo odkaz:
+**Třídy:**
+
+- `footer`: `border-t border-gray-200` – oddělení od obsahu; `mt-auto` – přitlačení dolů při flex layoutu; `py-4` – vertikální padding.
+- Vnitřní `div`: `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` – stejná šířka a padding jako hlavní obsah; `text-center text-sm text-gray-500`.
+- Odstavec: `m-0` – nulové margin.
+
+Název aplikace předávejte z backendu (např. `app_name`). Verze se zobrazí pouze pokud backend předá `app_version`.
+
+---
+
+## Verze aplikace
+
+Verze se načítá z **souboru `app/static/version.json`** a backend ji předá do šablon jako `app_version`.
+
+**Formát version.json:**
+
+```json
+{
+  "version": "20260207.2010"
+}
+```
+
+**Backend (příklad – FastAPI):** Při startu aplikace načíst `version.json` (např. z `STATIC_DIR / "version.json"`), přečíst pole `version` a nastavit globální proměnnou šablon:
+
+```python
+# Načtení verze ze souboru (s fallbackem)
+def _load_version() -> str:
+    try:
+        if VERSION_JSON.exists():
+            data = json.loads(VERSION_JSON.read_text(encoding="utf-8"))
+            return data.get("version", "0.1.0")
+    except (json.JSONDecodeError, OSError):
+        pass
+    return "0.1.0"
+
+APP_VERSION = _load_version()
+templates.env.globals["app_version"] = APP_VERSION
+```
+
+V šabloně pak stačí `{% if app_version %} • Verze {{ app_version }}{% endif %}`. Verzi **nepište natvrdo** do HTML; vždy z backendu (z `version.json` nebo ekvivalentu).
+
+**Docker/build:** Při sestavování image lze `version.json` vygenerovat (např. z data buildu) nebo ponechat v repozitáři a měnit ručně. Viz [TEMPLATE_DOCKER.md](./TEMPLATE_DOCKER.md).
+
+---
+
+## Rozšíření přes blok
+
+Pro stránkově specifický obsah v zápatí slouží blok `{% block footer %}` uvnitř `<footer>`.
+
+V `base.html`:
+
+```html
+<footer class="border-t border-gray-200 mt-auto py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+        <p class="m-0">{{ app_name }}{% if app_version %} • Verze {{ app_version }}{% endif %}</p>
+        {% block footer %}{% endblock %}
+    </div>
+</footer>
+```
+
+V konkrétní stránce:
 
 ```html
 {% extends "base.html" %}
 {% block content %}...{% endblock %}
 {% block footer %}
-<p style="margin: 0.5rem 0 0 0; padding: 0; font-size: 0.75rem;">
-    <a href="/moje-stranka/dokumentace" style="color: inherit; text-decoration: underline;">Dokumentace</a>
+<p class="mt-2 text-xs text-gray-400">
+    <a href="/moje-stranka/dokumentace" class="text-inherit underline">Dokumentace</a>
 </p>
 {% endblock %}
 ```
 
-**Použití:** Pouze tam, kde je potřeba stránkově specifický obsah v zápatí; jinak stačí jednotné zápatí v `base.html`.
+Používejte jen tam, kde je opravdu potřeba dodatečný obsah v zápatí; jinak stačí jednotné zápatí v `base.html`.
 
 ---
 
-## Styly a konvence
+## Varianty a doplňky
 
-### Doporučené vlastnosti zápatí
+### Zápatí s odkazem (např. changelog)
 
-| Vlastnost | Doporučení | Důvod |
-|-----------|------------|--------|
-| **Ohraničení** | `border-top: 1px solid var(--color-border)` | Vizuální oddělení od obsahu |
-| **Barva textu** | `color: var(--color-text-light)` nebo ekvivalent | Sekundární důležitost |
-| **Velikost písma** | `font-size: 0.875rem` (14px) | Menší než hlavní text |
-| **Zarovnání** | `text-align: center` | Jednoduchý středový vzhled |
-| **Padding** | Malý (např. `0.25rem`–`0.5rem`) | Kompaktní zápatí |
-| **Odkazy** | `color: inherit; text-decoration: underline` | Konzistence s barvou zápatí |
+Pro administrátory lze verzi zobrazit jako odkaz:
 
-### Kontejner
+```html
+<p class="m-0">
+    {{ app_name }} •
+    {% if user and user.role.value == 'admin' %}
+    <a href="/changelog" class="text-inherit underline">Verze {{ app_version }}</a>
+    {% else %}
+    Verze {{ app_version }}
+    {% endif %}
+</p>
+```
 
-Používejte stejný kontejner jako pro hlavní obsah (`container`), aby šířka a padding odpovídaly layoutu stránky.
+Odkazy v zápatí nechte decentní (`text-inherit` nebo `text-gray-500`, podtržení), ne primární tlačítka.
+
+### Více odkazů
+
+Oddělovač např. `•`:
+
+```html
+<p class="m-0">
+    <a href="/changelog" class="text-inherit underline">Changelog</a>
+    •
+    <a href="/privacy" class="text-inherit underline">Ochrana soukromí</a>
+    •
+    Verze {{ app_version }}
+</p>
+```
 
 ---
 
 ## Best practices
 
-### 1. Jednotné zápatí v base.html
-
-Zápatí definujte **jednou** v `base.html`. Všechny stránky dědící od `base.html` ho automaticky zobrazí. Nepřepisujte celé zápatí v potomkovských šablonách, pokud to není nutné.
-
-### 2. Verze z backendu
-
-Verzi předávejte z aplikace (např. `app_version` v kontextu šablony). Nepište verzi natvrdo do HTML.
-
-### 3. Podmíněný obsah
-
-Obsah závislý na roli (např. odkaz na changelog jen pro adminy) řešte přes `{% if user and user.role.value == 'admin' %}` v šabloně. Nepředávat citlivé údaje jen do zápatí.
-
-### 4. Odkazy v zápatí
-
-Odkazy v zápatí nechte vizuálně decentní (barva děděná ze zápatí, podtržení). Vyhněte se výrazným tlačítkům nebo primárním barvám.
-
-### 5. Délka textu
-
-Text v zápatí udržujte krátký. Pro dlouhé texty (právní podmínky, licence) odkažte na samostatnou stránku.
-
-### 6. Responzivita
-
-Používejte `word-wrap: break-word; overflow-wrap: break-word` u odstavce, aby dlouhé řetězce (např. verze) na malých obrazovkách nezlomily layout.
-
-### 7. Přístupnost
-
-Odkazy v zápatí měly mít smysluplný text (ne jen „zde“). Pro čistě dekorativní text není nutné přidávat další ARIA atributy.
+1. **Jednotné zápatí v base.html** – definujte zápatí jednou v `base.html`; v potomcích ho nepřepisujte celé, jen rozšiřujte blokem `footer`.
+2. **Verze z backendu** – vždy z `app_version` (načteno z `version.json` nebo ekvivalentu), nikdy natvrdo v HTML.
+3. **Stejný kontejner jako main** – `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` pro vizuální sladění s obsahem.
+4. **Odkazy decentní** – barva děděná ze zápatí, podtržení; vyhněte se výrazným tlačítkům.
+5. **Krátký text** – dlouhé právní texty řešte odkazem na samostatnou stránku.
+6. **Responzivita** – u dlouhých řetězců (verze) lze přidat `break-words` na odstavci.
 
 ---
 
 ## Shrnutí
 
-Tato šablona zápatí poskytuje:
-
-✅ **Jednotné umístění** v `base.html` pod `<main>`  
-✅ **Vzory** od minimálního textu po verzi a podmíněné odkazy  
-✅ **Konzistentní styly** (ohraničení, barva, velikost písma)  
-✅ **Volitelný blok** `{% block footer %}` pro rozšíření na konkrétních stránkách  
-✅ **Pravidla** pro verzi, odkazy a responzivní text  
-
-Při úpravách zápatí upravujte vždy `base.html` a dodržujte tyto konvence pro jednotný vzhled aplikace.
+- **Umístění:** `base.html`, pod `<main>`, třídy Tailwind: `border-t border-gray-200 mt-auto py-4`, kontejner `max-w-7xl mx-auto`, `text-center text-sm text-gray-500`.
+- **Verze:** z `app/static/version.json` → backend předá `app_version` do šablon; zobrazení `{% if app_version %} • Verze {{ app_version }}{% endif %}`.
+- **Rozšíření:** volitelný blok `{% block footer %}` pro stránkově specifický obsah.
+- Při úpravách zápatí upravujte vždy `base.html` a dodržujte konzistenci s hlavním obsahem (šířka, barvy, typografie).

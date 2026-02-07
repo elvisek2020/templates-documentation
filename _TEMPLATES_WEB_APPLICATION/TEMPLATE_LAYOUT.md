@@ -16,6 +16,20 @@ Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro 
 
 ## Základní struktura stránky
 
+### Kontejner obsahu v base.html
+
+V `base.html` je hlavní obsah obalen kontejnerem s minimální výškou:
+
+```html
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+    <div class="content-area min-h-[55vh]">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+```
+
+Stránky tedy vkládají obsah do bloku `content`; šířka a padding jsou dány `main`.
+
 ### Minimální template
 
 ```html
@@ -29,7 +43,9 @@ Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro 
     <div class="flex items-center justify-between mb-6">
       <div>
         <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-        <p class="text-gray-600 mt-2">{{ page_description or 'Popis stránky' }}</p>
+        {% if page_description %}
+        <p class="text-gray-600 mt-2">{{ page_description }}</p>
+        {% endif %}
       </div>
       <div class="flex space-x-3">
         <!-- Navigační tlačítka -->
@@ -38,7 +54,7 @@ Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro 
   </div>
 
   <!-- Hlavní obsah -->
-  <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+  <section class="page-content-box bg-white rounded-xl shadow-sm border border-gray-200 p-6 min-h-[45vh]">
     <h2 class="text-lg font-semibold text-gray-900 mb-4">Nadpis sekce</h2>
     <!-- Obsah sekce -->
   </section>
@@ -46,9 +62,11 @@ Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro 
 {% endblock %}
 ```
 
+**Poznámka:** `page_description` je volitelný – některé stránky (např. Nastavení, Přehled) mají jen nadpis `h1` bez druhého řádku.
+
 ### Maximální šířka kontejneru
 
-**Vždy používejte:** `max-w-7xl mx-auto` pro hlavní obsah stránky
+**Vždy používejte:** `max-w-7xl mx-auto` pro vnitřní obsah stránky uvnitř `{% block content %}`.
 
 ```html
 <div class="max-w-7xl mx-auto">
@@ -67,9 +85,21 @@ Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro 
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
+      {% if page_description %}
       <p class="text-gray-600 mt-2">{{ page_description }}</p>
+      {% endif %}
     </div>
   </div>
+</div>
+```
+
+### Hlavička pouze s nadpisem (bez popisu)
+
+Na stránkách jako Přehled nebo Nastavení stačí jeden řádek:
+
+```html
+<div class="mb-8">
+  <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
 </div>
 ```
 
@@ -158,6 +188,26 @@ Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro 
   <!-- Obsah bez nadpisu -->
 </section>
 ```
+
+### Stránka Nastavení – mřížka vstupních karet
+
+Stránka typu „Nastavení“ (výběr podmodulů) používá **mřížku 2 sloupce** a karty s pevnou velikostí **620×120 px**. Každá karta je odkaz s názvem a šipkou vpravo. Třída kontejneru: `page-content-box`.
+
+```html
+<div class="page-content-box grid grid-cols-2 gap-4 min-h-[45vh]">
+  <a href="/settings/podmodul-1" class="flex items-center px-6 py-4 w-[620px] h-[120px] bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-colors text-left">
+    <span class="text-2xl font-medium text-gray-900">Podmodul 1</span>
+    <svg class="w-6 h-6 ml-auto text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+  </a>
+  <a href="/settings/podmodul-2" class="flex items-center px-6 py-4 w-[620px] h-[120px] bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-colors text-left">
+    <span class="text-2xl font-medium text-gray-900">Podmodul 2</span>
+    <svg class="w-6 h-6 ml-auto text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+  </a>
+</div>
+```
+
+- Kontejner: `page-content-box grid grid-cols-2 gap-4 min-h-[45vh]`.
+- Karta: `flex items-center`, `w-[620px] h-[120px]`, `rounded-xl`, text `text-2xl font-medium`, šipka vpravo (`ml-auto shrink-0`).
 
 ### Více boxů vedle sebe
 
@@ -319,24 +369,21 @@ Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro 
 
 ## Navigace
 
-### Tabs jako tlačítka
+### Tabs jako tlačítka (v obsahu stránky)
+
+Pro záložky uvnitř stránky (ne hlavní menu):
 
 ```html
 <div class="flex space-x-2 mb-6">
   <a href="/path/to/tab1" 
-     class="px-4 py-2 {% if current_tab == 'tab1' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} font-medium rounded-lg">
+     class="px-4 py-2 {% if current_tab == 'tab1' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} font-medium rounded-lg transition-colors">
     Tab 1
   </a>
-  <a href="/path/to/tab2" 
-     class="px-4 py-2 {% if current_tab == 'tab2' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} font-medium rounded-lg">
-    Tab 2
-  </a>
-  <a href="/path/to/tab3" 
-     class="px-4 py-2 {% if current_tab == 'tab3' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} font-medium rounded-lg">
-    Tab 3
-  </a>
+  <!-- ... -->
 </div>
 ```
+
+**Hlavní navigace v hlavičce** má pevnou velikost tlačítek 150×40 px a je popsána v [TEMPLATE_MENU.md](./TEMPLATE_MENU.md).
 
 ### Navigační tlačítka v hlavičce
 

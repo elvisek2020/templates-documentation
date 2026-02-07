@@ -345,6 +345,19 @@ Tento dokument obsahuje kompletní seznam všech standardizovaných UI komponent
 </div>
 ```
 
+### Karta vstupu v Nastavení (odkaz na podsekci)
+
+Používá se na stránce nastavení pro odkaz na podmodul. Pevná velikost **620×120 px**, text velký (`text-2xl`), vpravo šipka. Mřížka 2 sloupce – viz [TEMPLATE_LAYOUT.md](./TEMPLATE_LAYOUT.md).
+
+```html
+<a href="/settings/podmodul-1" class="flex items-center px-6 py-4 w-[620px] h-[120px] bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-colors text-left">
+  <span class="text-2xl font-medium text-gray-900">Podmodul 1</span>
+  <svg class="w-6 h-6 ml-auto text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+</a>
+```
+
+- Kontejner mřížky: `page-content-box grid grid-cols-2 gap-4 min-h-[45vh]`.
+
 ---
 
 ## Modaly
@@ -513,7 +526,14 @@ function openModal(modalId, url) {
 
 ### Globální notifikační systém
 
-Funkce `showNotification()` je globálně dostupná ve všech aplikacích:
+V `base.html` je definovaný prvek `#notification-toast` a funkce `showNotification(message, type)`. Notifikace se zobrazí v pravém dolním rohu, po cca 4 s zmizí.
+
+**Umístění a styly (base.html):**
+
+- Kontejner: `id="notification-toast"`, třídy `fixed bottom-4 right-4 z-[100] max-w-sm hidden`, role `status`, `aria-live="polite"`.
+- Barvy podle typu: `success` → zelená (`bg-green-600`), `error` → červená (`bg-red-600`), výchozí `info` → modrá (`bg-blue-600`).
+
+**Použití:**
 
 ```javascript
 // Úspěšná notifikace
@@ -522,9 +542,11 @@ showNotification('Operace byla úspěšně dokončena', 'success');
 // Chybová notifikace
 showNotification('Došlo k chybě při zpracování', 'error');
 
-// Info notifikace
+// Info notifikace (výchozí)
 showNotification('Informační zpráva', 'info');
 ```
+
+Používejte `showNotification()` místo `alert()` pro konzistentní UX.
 
 ### Použití v formuláři
 

@@ -72,14 +72,18 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-head
 - Pro aplikace za reverse proxy jsou důležité `--proxy-headers` a `--forwarded-allow-ips`.
 - Další systémové balíčky (SMB, ODBC, diagnostika): přidejte je do řádku `apt-get install` a zdokumentujte v README projektu.
 
-**Verze buildu:** Pro zobrazení verze nebo data buildu v aplikaci lze při sestavení image vygenerovat soubor (např. do `static/`):
+**Verze aplikace:** Verze se zobrazuje v zápatí (proměnná `app_version` v šablonách). Dva přístupy:
+
+1. **Soubor `app/static/version.json` v repozitáři** – obsahuje např. `{"version": "20260207.2010"}`. Aplikace při startu soubor načte a předá verzi do šablon (globální proměnná). Soubor lze měnit ručně před releasem. Viz [TEMPLATE_FOOTER.md](./TEMPLATE_FOOTER.md).
+
+2. **Generování při buildu image** – verze podle data/času buildu:
 
 ```dockerfile
 # Před USER appuser, pokud používáte non-root
 RUN python3 -c "import datetime; v = datetime.datetime.now().strftime('v.%Y%m%d.%H%M'); open('/app/static/version.json', 'w').write('{\"version\": \"' + v + '\"}')"
 ```
 
-Frontend pak může načíst `/static/version.json` a zobrazit ho v patičce nebo v nastavení.
+V obou případech je soubor dostupný na `/static/version.json`; backend ho načte při startu a nastaví např. `templates.env.globals["app_version"]`.
 
 **WeasyPrint (generování PDF):** Pokud aplikace používá WeasyPrint, přidejte do `apt-get install`:
 

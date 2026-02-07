@@ -1,6 +1,6 @@
 # Dokumentace šablony pro webové aplikace
 
-Tato složka obsahuje univerzální šablonu a dokumentaci pro vytváření standardizovaných webových aplikací v rámci modulárního systému.
+Tato složka obsahuje šablonu a dokumentaci pro standardizované webové aplikace: hlavní menu s klikacím nadpisem, záložky 150×40 px, zápatí s verzí z `version.json`, stránka nastavení s mřížkou karet 620×120 px, notifikace v pravém dolním rohu.
 
 ## 📚 Dokumenty
 
@@ -54,20 +54,19 @@ Kontejnerizace a orchestrace (vychází z reálných projektů Nexus, Fit, Game)
 **Použijte** při nasazování nebo úpravě Dockeru (build, compose, env).
 
 ### [TEMPLATE_MENU.md](./TEMPLATE_MENU.md) - Šablona menu
-Průvodce hlavní navigací a přidáním položek do menu:
-- Struktura menu (desktop + mobil)
-- Anatomie položky (href, ikona, label, active)
-- Vzory viditelnosti (vždy / podle modulu / podle role / vlastní podmínka)
-- Aktivní stav a best practices
+Průvodce hlavní navigací podle aktuálního designu:
+- Klikací nadpis aplikace (odkaz na přehled), záložky 150×40 px
+- Desktop (horizontální pruh) a mobil (vysouvací panel)
+- Aktivní stav přes `current_tab` z backendu
+- Blok uživatele, hamburger, podsekce jako karty na stránce nastavení
 
 **Použijte** při přidávání nebo úpravě položek v hlavním menu.
 
 ### [TEMPLATE_FOOTER.md](./TEMPLATE_FOOTER.md) - Šablona zápatí
 Průvodce zápatím stránky (footer):
-- Umístění a základní struktura
-- Minimální zápatí, zápatí s verzí
-- Odkaz na changelog pro administrátory, více odkazů
-- Rozšíření přes blok a styly
+- Aktuální struktura (Tailwind: border-t, max-w-7xl, text-sm text-gray-500)
+- Verze z `app/static/version.json` → `app_version` v šabloně
+- Rozšíření přes blok `footer`, varianty s odkazy
 - Best practices
 
 **Použijte** při úpravě nebo rozšíření zápatí v `base.html`.
@@ -91,11 +90,12 @@ Průvodce zápatím stránky (footer):
 ### 3. Kontrola konzistence
 
 - ✅ Používáte standardní barvy tlačítek?
-- ✅ Dodržujete strukturu boxů (`bg-white rounded-xl shadow-sm border border-gray-200 p-6`)?
-- ✅ Máte správnou hlavičku stránky?
+- ✅ Dodržujete strukturu boxů (`bg-white rounded-xl shadow-sm border border-gray-200 p-6`, příp. `page-content-box`)?
+- ✅ Máte správnou hlavičku stránky (h1, volitelný page_description)?
 - ✅ Používáte `showNotification()` místo `alert()`?
 - ✅ Máte `max-w-7xl mx-auto` pro hlavní obsah?
-- ✅ Přidáváte `transition-colors` k tlačítkům?
+- ✅ Přidáváte `transition-colors` k interaktivním prvkům?
+- ✅ Záložky v menu 150×40 px; aktivní stav přes `current_tab` z backendu?
 
 ## 📋 Checklist pro novou stránku
 
