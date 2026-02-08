@@ -82,6 +82,61 @@ Tento dokument obsahuje kompletní seznam všech standardizovaných UI komponent
 
 ## Formuláře
 
+### Jednotná šablona formulářů
+
+Pro konzistentní vzhled používejte tuto šablonu pro všechny formuláře v aplikaci (např. formuláře v nastavení, přihlášení, CRUD entity).
+
+**Zásady:**
+- **Jeden řádek = popisek + input** — label vlevo, input vpravo na stejném řádku (ne pod sebou).
+- **Stejná šířka inputů** — formulář zabírá celou šířku boxu (`w-full`), inputy v druhém sloupci mají stejnou délku.
+- **Stejná výška** — všechny textové inputy a select mají pevnou výšku `h-[2.5rem]`, aby dropdown nebyl vizuálně menší.
+- **Tlačítka vpravo** — řádek s tlačítky Zrušit / Uložit je zarovnaný doprava (`w-full flex justify-end gap-3 pt-4`).
+
+**Struktura řádku (pole):**
+```html
+<div class="grid grid-cols-[minmax(0,11rem)_1fr] gap-4 items-center">
+  <label for="id_pole" class="text-sm font-medium text-gray-700">Popisek *</label>
+  <input type="text" id="id_pole" name="pole"
+         class="w-full px-3 py-2 h-[2.5rem] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+         placeholder="…">
+</div>
+```
+
+**Select (dropdown)** — stejná výška a vzhled jako input, vlastní šipka (bez nativního menšího vzhledu):
+```html
+<div class="grid grid-cols-[minmax(0,11rem)_1fr] gap-4 items-center">
+  <label for="role" class="text-sm font-medium text-gray-700">Role</label>
+  <select id="role" name="role" class="w-full px-3 py-2 h-[2.5rem] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base bg-white appearance-none cursor-pointer" style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 24 24%27 stroke=%27%236b7280%27%3E%3Cpath stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M19 9l-7 7-7-7%27/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.25rem; padding-right: 2rem;">
+    <option value="a">Možnost A</option>
+    <option value="b">Možnost B</option>
+  </select>
+</div>
+```
+
+**Textarea** — popisek a textarea na jednom řádku, textarea může být víceřádková; zarovnání nahoru:
+```html
+<div class="grid grid-cols-[minmax(0,11rem)_1fr] gap-4 items-start">
+  <label for="note" class="text-sm font-medium text-gray-700 pt-2">Poznámka</label>
+  <textarea id="note" name="note" rows="3" placeholder="…"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"></textarea>
+</div>
+```
+
+**Formulář a tlačítka:**
+```html
+<form method="post" action="…" class="space-y-5 w-full">
+  <!-- řádky polí podle výše -->
+  <div class="w-full flex justify-end gap-3 pt-4">
+    <a href="…" class="px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">Zrušit</a>
+    <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">Uložit</button>
+  </div>
+</form>
+```
+
+**Příklad použití:** formuláře uživatelů, nastavení, přihlášení a další entity; použijte tam, kde má být konzistentní layout (label vlevo, input vpravo).
+
+---
+
 ### Text input
 ```html
 <div>
