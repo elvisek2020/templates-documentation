@@ -2,6 +2,15 @@
 
 Tato složka obsahuje šablonu a dokumentaci pro standardizované webové aplikace: hlavní menu s klikacím nadpisem, záložky 150×40 px, zápatí s verzí z `version.json`, stránka nastavení s mřížkou karet 620×120 px, notifikace v pravém dolním rohu.
 
+## 📁 Referenční styly (app.css)
+
+V této složce je soubor **[reference_app.css](./reference_app.css)** – kopie hlavního stylesheetu aplikace. Obsahuje všechny třídy zmiňované v dokumentech (`.card`, `.btn`, `.form-group`, `.input`, `.page-header`, CSS proměnné v `:root` atd.).
+
+- **Pro novou aplikaci:** zkopírujte `reference_app.css` do vašeho projektu jako `app/static/css/app.css` (nebo ekvivalentní cestu) a v `base.html` načtěte tento soubor.
+- **Synchronizace:** referenční soubor může být občas aktualizován z reálné aplikace; při použití šablony v jiném repo jej můžete znovu zkopírovat nebo porovnat s vlastním `app.css`.
+
+---
+
 ## 📚 Dokumenty
 
 ### [TEMPLATE_LAYOUT.md](./TEMPLATE_LAYOUT.md) - Šablona layoutu
@@ -34,7 +43,7 @@ Kompletní seznam všech standardizovaných UI komponent:
 Kompletní popis technologií a architektury:
 - Přehled architektury
 - Backend (Python, FastAPI, Jinja2)
-- Frontend (HTML5, Tailwind CSS, HTMX)
+- Frontend (HTML5, lokální CSS – app.css, HTMX)
 - Databáze (SQLite)
 - Autentizace a autorizace (OAuth2)
 - Modulární systém
@@ -64,7 +73,7 @@ Průvodce hlavní navigací podle aktuálního designu:
 
 ### [TEMPLATE_FOOTER.md](./TEMPLATE_FOOTER.md) - Šablona zápatí
 Průvodce zápatím stránky (footer):
-- Aktuální struktura (Tailwind: border-t, max-w-7xl, text-sm text-gray-500)
+- Aktuální struktura (třídy z app.css: ohraničení, kontejner, typografie)
 - Verze z `app/static/version.json` → `app_version` v šabloně
 - Rozšíření přes blok `footer`, varianty s odkazy
 - Best practices
@@ -89,25 +98,24 @@ Průvodce zápatím stránky (footer):
 
 ### 3. Kontrola konzistence
 
-- ✅ Používáte standardní barvy tlačítek?
-- ✅ Dodržujete strukturu boxů (`bg-white rounded-xl shadow-sm border border-gray-200 p-6`, příp. `page-content-box`)?
-- ✅ Máte správnou hlavičku stránky (h1, volitelný page_description)?
+- ✅ Používáte standardní třídy tlačítek (`.btn`, `.btn-primary`, `.btn-outline`)?
+- ✅ Dodržujete strukturu boxů (třída `.card`, příp. `.page-content-box`)?
+- ✅ Máte správnou hlavičku stránky (`.page-header`, h1, volitelný popis)?
 - ✅ Používáte `showNotification()` místo `alert()`?
-- ✅ Máte `max-w-7xl mx-auto` pro hlavní obsah?
-- ✅ Přidáváte `transition-colors` k interaktivním prvkům?
-- ✅ Záložky v menu 150×40 px; aktivní stav přes `current_tab` z backendu?
+- ✅ Hlavní obsah je v kontejneru (`.container` v base.html)?
+- ✅ Interaktivní prvky mají přechody definované v app.css?
+- ✅ Záložky v menu 150×40 px; aktivní stav přes `current_tab` / aktivní třída z backendu?
 
 ## 📋 Checklist pro novou stránku
 
-- [ ] Používám `max-w-7xl mx-auto` pro hlavní obsah
-- [ ] Hlavička stránky má správnou strukturu
-- [ ] Sekce používají standardní box (`bg-white rounded-xl shadow-sm border border-gray-200 p-6`)
+- [ ] Hlavní obsah respektuje kontejner z base.html
+- [ ] Hlavička stránky má správnou strukturu (page-header, page-title)
+- [ ] Sekce používají standardní box (třída `.card` z app.css)
 - [ ] Používám standardní komponenty z TEMPLATE_COMPONENTS.md
 - [ ] Formuláře mají validaci
 - [ ] Destruktivní akce mají potvrzení
 - [ ] Používám `showNotification()` pro zpětnou vazbu
-- [ ] Přidávám `transition-colors` k interaktivním prvkům
-- [ ] Respektuji spacing konvence (`mb-6` mezi sekcemi)
+- [ ] Respektuji spacing a třídy z app.css
 
 ## 🎨 Klíčové principy
 
@@ -136,6 +144,7 @@ Průvodce zápatím stránky (footer):
 ```
 _TEMPLATES_WEB_APPLICATION/
 ├── README.md                 # Tento soubor – přehled dokumentace
+├── reference_app.css         # Referenční styly – zkopírujte do app/static/css/app.css
 ├── TEMPLATE_LAYOUT.md        # Šablona layoutu a struktury stránek
 ├── TEMPLATE_COMPONENTS.md    # Šablona komponent UI
 ├── TEMPLATE_TECHNOLOGY.md    # Technologický stack a architektura

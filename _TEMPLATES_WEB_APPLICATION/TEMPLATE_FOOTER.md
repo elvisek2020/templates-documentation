@@ -1,6 +1,6 @@
 # Šablona zápatí – Zápatí stránky
 
-Tento dokument popisuje strukturu zápatí (footer) podle aktuálního designu aplikace. Zápatí je součástí `base.html` a používá Tailwind CSS.
+Tento dokument popisuje strukturu zápatí (footer) podle aktuálního designu aplikace. Zápatí je součástí `base.html`; styly jsou v lokálním CSS (app.css) nebo inline dle potřeby.
 
 ## 📋 Obsah
 
@@ -29,22 +29,18 @@ Jednotlivé stránky zápatí nemusí definovat; rozšíření jen tam, kde je p
 
 ## Aktuální struktura
 
-Zápatí používá **Tailwind třídy**: ohraničení shora, středový text, menší písmo, šedá barva.
+Zápatí má **ohraničení shora**, **středový text**, **menší písmo** a **barvu textu** z designu (např. `var(--color-text-light)` z app.css).
 
 ```html
-<footer class="border-t border-gray-200 mt-auto py-4">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
-        <p class="m-0">{{ app_name }}{% if app_version %} • Verze {{ app_version }}{% endif %}</p>
+<footer class="footer" style="margin-top: 0; padding: 0.25rem 0; border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-light); font-size: 0.875rem;">
+    <div class="container">
+        <p style="margin: 0;">{{ app_name }}{% if app_version %} • Verze {{ app_version }}{% endif %}</p>
         {% block footer %}{% endblock %}
     </div>
 </footer>
 ```
 
-**Třídy:**
-
-- `footer`: `border-t border-gray-200` – oddělení od obsahu; `mt-auto` – přitlačení dolů při flex layoutu; `py-4` – vertikální padding.
-- Vnitřní `div`: `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` – stejná šířka a padding jako hlavní obsah; `text-center text-sm text-gray-500`.
-- Odstavec: `m-0` – nulové margin.
+**Poznámka:** Třída `.footer` a `.container` by měly být definované v hlavním CSS (app.css) tak, aby zápatí mělo konzistentní vzhled a šířku shodnou s `<main>`. Alternativně lze použít inline styly jako v příkladu.
 
 Název aplikace předávejte z backendu (např. `app_name`). Verze se zobrazí pouze pokud backend předá `app_version`.
 
@@ -92,9 +88,9 @@ Pro stránkově specifický obsah v zápatí slouží blok `{% block footer %}` 
 V `base.html`:
 
 ```html
-<footer class="border-t border-gray-200 mt-auto py-4">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
-        <p class="m-0">{{ app_name }}{% if app_version %} • Verze {{ app_version }}{% endif %}</p>
+<footer class="footer" style="…">
+    <div class="container">
+        <p style="margin: 0;">{{ app_name }}{% if app_version %} • Verze {{ app_version }}{% endif %}</p>
         {% block footer %}{% endblock %}
     </div>
 </footer>
@@ -106,8 +102,8 @@ V konkrétní stránce:
 {% extends "base.html" %}
 {% block content %}...{% endblock %}
 {% block footer %}
-<p class="mt-2 text-xs text-gray-400">
-    <a href="/moje-stranka/dokumentace" class="text-inherit underline">Dokumentace</a>
+<p style="margin-top: 0.5rem; font-size: 0.75rem;">
+    <a href="/moje-stranka/dokumentace" style="color: inherit; text-decoration: underline;">Dokumentace</a>
 </p>
 {% endblock %}
 ```
@@ -123,27 +119,27 @@ Používejte jen tam, kde je opravdu potřeba dodatečný obsah v zápatí; jina
 Pro administrátory lze verzi zobrazit jako odkaz:
 
 ```html
-<p class="m-0">
+<p style="margin: 0;">
     {{ app_name }} •
     {% if user and user.role.value == 'admin' %}
-    <a href="/changelog" class="text-inherit underline">Verze {{ app_version }}</a>
+    <a href="/changelog" style="color: inherit; text-decoration: underline;">Verze {{ app_version }}</a>
     {% else %}
     Verze {{ app_version }}
     {% endif %}
 </p>
 ```
 
-Odkazy v zápatí nechte decentní (`text-inherit` nebo `text-gray-500`, podtržení), ne primární tlačítka.
+Odkazy v zápatí nechte decentní (barva děděná, podtržení), ne primární tlačítka.
 
 ### Více odkazů
 
 Oddělovač např. `•`:
 
 ```html
-<p class="m-0">
-    <a href="/changelog" class="text-inherit underline">Changelog</a>
+<p style="margin: 0;">
+    <a href="/changelog" style="color: inherit; text-decoration: underline;">Changelog</a>
     •
-    <a href="/privacy" class="text-inherit underline">Ochrana soukromí</a>
+    <a href="/privacy" style="color: inherit; text-decoration: underline;">Ochrana soukromí</a>
     •
     Verze {{ app_version }}
 </p>
@@ -155,16 +151,16 @@ Oddělovač např. `•`:
 
 1. **Jednotné zápatí v base.html** – definujte zápatí jednou v `base.html`; v potomcích ho nepřepisujte celé, jen rozšiřujte blokem `footer`.
 2. **Verze z backendu** – vždy z `app_version` (načteno z `version.json` nebo ekvivalentu), nikdy natvrdo v HTML.
-3. **Stejný kontejner jako main** – `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` pro vizuální sladění s obsahem.
+3. **Stejný kontejner jako main** – použijte třídu `.container` (nebo stejné styly jako má `<main>`) pro vizuální sladění s obsahem.
 4. **Odkazy decentní** – barva děděná ze zápatí, podtržení; vyhněte se výrazným tlačítkům.
 5. **Krátký text** – dlouhé právní texty řešte odkazem na samostatnou stránku.
-6. **Responzivita** – u dlouhých řetězců (verze) lze přidat `break-words` na odstavci.
+6. **Responzivita** – u dlouhých řetězců (verze) lze přidat zlom řádku nebo `word-break` v app.css.
 
 ---
 
 ## Shrnutí
 
-- **Umístění:** `base.html`, pod `<main>`, třídy Tailwind: `border-t border-gray-200 mt-auto py-4`, kontejner `max-w-7xl mx-auto`, `text-center text-sm text-gray-500`.
+- **Umístění:** `base.html`, pod `<main>`, styly z app.css nebo inline: ohraničení shora, padding, kontejner (`.container`), středový text, menší písmo, barva textu (`var(--color-text-light)`).
 - **Verze:** z `app/static/version.json` → backend předá `app_version` do šablon; zobrazení `{% if app_version %} • Verze {{ app_version }}{% endif %}`.
 - **Rozšíření:** volitelný blok `{% block footer %}` pro stránkově specifický obsah.
 - Při úpravách zápatí upravujte vždy `base.html` a dodržujte konzistenci s hlavním obsahem (šířka, barvy, typografie).

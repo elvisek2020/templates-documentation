@@ -21,7 +21,7 @@ Menu se zobrazuje na **dvou místech** v `base.html`:
 
 | Místo | Kontejner | Popis |
 |-------|-----------|--------|
-| **Desktop** | `<nav class="nav hidden lg:flex ...">` | Horizontální pruh v hlavičce, střed stránky |
+| **Desktop** | `<nav class="nav ...">` (třídy z app.css) | Horizontální pruh v hlavičce, střed stránky |
 | **Mobil** | `<nav id="mobile-menu" class="...">` | Boční panel (hamburger), fixed vpravo |
 
 **Pravidlo:** Každou novou záložku je nutné přidat na **obou** místech se stejnými třídami a rozměry.
@@ -52,7 +52,7 @@ První prvek v hlavičce není záložka „Přehled“, ale **klikací nadpis**
 
 ## Položky záložek – desktop
 
-Záložky mají **pevnou velikost 150×40 px**, středově zarovnaný text. Aktivní záložka je modrá, neaktivní šedá s hover efektem.
+Záložky mají **pevnou velikost 150×40 px**, středově zarovnaný text. Aktivní záložka je modrá, neaktivní šedá s hover efektem. Třídy lze definovat v app.css (např. `.nav-item`, `.nav-item--active`) a v šabloně je pouze použít; níže jsou pro ilustraci uvedeny i konkrétní vlastnosti, které tyto třídy zastupují.
 
 **Třídy položky (desktop):**
 
@@ -60,14 +60,15 @@ Záložky mají **pevnou velikost 150×40 px**, středově zarovnaný text. Akti
 - Aktivní: `bg-blue-600 text-white`
 - Neaktivní: `bg-gray-100 text-gray-700 hover:bg-gray-200`
 
-**Příklad – jedna položka (desktop):**
+**Příklad – jedna položka (desktop):**  
+V app.css použijte třídy `.nav-item` a pro aktivní stav `.nav-item.active` nebo `.nav-item--active` (reference_app.css obsahuje obě varianty). Níže je ilustrační příklad s konkrétními vlastnostmi (150×40 px, barvy); v reálné šabloně stačí např. `class="nav-item {% if current_tab == 'modul_a' %}nav-item--active{% endif %}"`.
 
 ```html
-<nav class="nav hidden lg:flex items-center gap-1.5 flex-1 justify-center min-w-0" aria-label="Hlavní navigace">
-  <a href="/modul-a" class="nav-item inline-flex items-center justify-center w-[150px] h-[40px] rounded-lg text-sm font-medium transition-colors whitespace-nowrap {% if current_tab == 'modul_a' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">Modul A</a>
-  <a href="/modul-b" class="nav-item inline-flex items-center justify-center w-[150px] h-[40px] rounded-lg text-sm font-medium transition-colors whitespace-nowrap {% if current_tab == 'modul_b' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">Modul B</a>
+<nav class="nav" aria-label="Hlavní navigace">
+  <a href="/modul-a" class="nav-item {% if current_tab == 'modul_a' %}nav-item--active{% endif %}">Modul A</a>
+  <a href="/modul-b" class="nav-item {% if current_tab == 'modul_b' %}nav-item--active{% endif %}">Modul B</a>
   <!-- ... další položky ... -->
-  <a href="/settings" class="nav-item inline-flex items-center justify-center w-[150px] h-[40px] rounded-lg text-sm font-medium transition-colors whitespace-nowrap {% if current_tab == 'settings' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">Nastavení</a>
+  <a href="/settings" class="nav-item {% if current_tab == 'settings' %}nav-item--active{% endif %}">Nastavení</a>
 </nav>
 ```
 
@@ -82,19 +83,20 @@ Mobilní menu je **vysouvací panel** (fixed vpravo, šířka např. `w-64 max-w
 **Struktura mobilního menu:**
 
 - Overlay: `fixed inset-0 bg-gray-600 bg-opacity-50 z-40 hidden lg:hidden` (id např. `mobile-menu-overlay`).
-- Panel: `fixed top-0 right-0 h-full w-64 max-w-[85vw] bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-200 lg:hidden`.
+- Panel: fixovaný vpravo, full výška, šířka např. 16rem, max 85vw; v app.css třída pro výchozí stav (skrytý) a pro otevřený stav; na desktopu skrytý (např. `@media (min-width: 1024px) { display: none }`).
 - Hlavička panelu: „Menu“ + tlačítko zavřít (X).
 - Obsah: stejné položky jako desktop, první položka = název aplikace (odkaz na `/`).
 
-**Příklad – jedna položka (mobil):**
+**Příklad – jedna položka (mobil):**  
+Reference_app.css definuje `.mobile-nav-item` a `.mobile-nav-item.active`; v šabloně použijte např. `class="mobile-nav-item {% if current_tab == 'dashboard' %}active{% endif %}"`.
 
 ```html
-<a href="/" class="mobile-nav-item flex items-center justify-center w-[150px] h-[40px] rounded-lg text-sm font-medium transition-colors {% if current_tab == 'dashboard' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">{{ app_name }}</a>
-<a href="/modul-a" class="mobile-nav-item flex items-center justify-center w-[150px] h-[40px] rounded-lg text-sm font-medium transition-colors {% if current_tab == 'modul_a' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">Modul A</a>
+<a href="/" class="mobile-nav-item {% if current_tab == 'dashboard' %}active{% endif %}">{{ app_name }}</a>
+<a href="/modul-a" class="mobile-nav-item {% if current_tab == 'modul_a' %}active{% endif %}">Modul A</a>
 <!-- ... -->
 ```
 
-Otevírání/zavírání: tlačítko hamburger přidá/odebere třídu `translate-x-full` na panel a zobrazí/skryje overlay; při otevření `document.body.style.overflow = 'hidden'`, při zavření vráceno.
+Otevírání/zavírání: tlačítko hamburger přidá/odebere na panel třídu pro skrytí (např. v app.css) a zobrazí/skryje overlay; při otevření `document.body.style.overflow = 'hidden'`, při zavření vráceno.
 
 ---
 
@@ -134,8 +136,8 @@ V šabloně pak `{% if current_tab == 'modul_a' %}bg-blue-600 text-white{% else 
 ## Přidání nové položky
 
 1. **Backend:** Přidat route a v kontextu šablony vždy posílat `current_tab` (např. `"muj_modul"`).
-2. **base.html – desktop:** Do `<nav class="nav ...">` vložit nový odkaz se stejnými třídami (`w-[150px] h-[40px]`, aktivní/neaktivní podle `current_tab`).
-3. **base.html – mobil:** Do `<div class="p-4 flex flex-col gap-1">` v mobilním menu vložit stejnou položku (stejné třídy, stejný `current_tab`).
+2. **base.html – desktop:** Do `<nav class="nav ...">` vložit nový odkaz s třídami `nav-item` a `nav-item--active` podle `current_tab`.
+3. **base.html – mobil:** Do kontejneru mobilního menu vložit stejnou položku s třídami `mobile-nav-item` a `active` podle `current_tab`.
 4. Pořadí položek na desktopu a v mobilu udržujte shodné.
 
 ---

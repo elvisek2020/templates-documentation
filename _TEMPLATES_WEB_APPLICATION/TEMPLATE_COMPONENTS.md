@@ -2,6 +2,8 @@
 
 Tento dokument obsahuje kompletní seznam všech standardizovaných UI komponent. Použijte tyto komponenty pro zajištění konzistentního vzhledu a chování napříč všemi aplikacemi.
 
+**Styling:** Aplikace používá **lokální CSS** – soubor `app/static/css/app.css`. Nepoužívá se Tailwind. Všechny komponenty používají třídy z app.css (např. `.btn`, `.btn-primary`, `.card`, `.form-group`, `.input`, `.table`). V sekcích Tabulky, Badge, Karty (více karet), Modaly a Loading jsou příklady zatím s utility/inline třídami; reference_app.css obsahuje `.table`, `.chip`, `.badge` – pro modaly a spinner lze v app.css doplnit např. `.modal`, `.modal-overlay`, `.spinner`.
+
 ## 📦 Obsah
 
 1. [Tlačítka](#tlačítka)
@@ -18,151 +20,109 @@ Tento dokument obsahuje kompletní seznam všech standardizovaných UI komponent
 
 ## Tlačítka
 
+Všechna tlačítka používají třídy z `app.css`. Základ: `.btn`, varianta: `.btn-primary`, `.btn-secondary`, `.btn-outline`, `.btn-danger`, velikost: `.btn-sm`, `.btn-large`.
+
 ### Primární tlačítko (hlavní akce)
 ```html
-<button class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-  Uložit
-</button>
+<button class="btn btn-primary">Uložit</button>
 ```
 
 ### Sekundární tlačítko (zpět, zrušit)
 ```html
-<button class="px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
-  Zpět
-</button>
+<a href="/path/back" class="btn btn-secondary">Zpět</a>
+```
+
+### Outline tlačítko (sekundární akce)
+```html
+<button class="btn btn-outline">Zrušit</button>
 ```
 
 ### Destruktivní tlačítko (smazat)
 ```html
-<button class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors">
-  Smazat
-</button>
+<button class="btn btn-danger">Smazat</button>
 ```
 
-### Úspěšné tlačítko (vytvořit, potvrdit)
+### Malé tlačítko (v tabulkách, vedle položek)
 ```html
-<button class="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors">
-  Vytvořit
-</button>
-```
-
-### Akční tlačítko (editovat, detail)
-```html
-<button class="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors">
-  Editovat
-</button>
-```
-
-### Tlačítko s ikonou
-```html
-<button class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-  </svg>
-  Přidat
-</button>
-```
-
-### Malé tlačítko (v tabulkách)
-```html
-<button class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm">
-  Akce
-</button>
+<button class="btn btn-outline btn-sm">Editovat</button>
 ```
 
 ### Tlačítko jako odkaz
 ```html
-<a href="/path/to/page" 
-   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-  Otevřít
-</a>
+<a href="/path/to/page" class="btn btn-primary">Otevřít</a>
 ```
 
 ---
 
 ## Formuláře
 
-### Jednotná šablona formulářů
-
-Pro konzistentní vzhled používejte tuto šablonu pro všechny formuláře v aplikaci (např. formuláře v nastavení, přihlášení, CRUD entity).
+Formuláře používají třídy z app.css: `.form-group`, `.form-label`, `.input`, `.select`, tlačítka `.btn`.
 
 **Zásady:**
-- **Jeden řádek = popisek + input** — label vlevo, input vpravo na stejném řádku (ne pod sebou).
-- **Stejná šířka inputů** — formulář zabírá celou šířku boxu (`w-full`), inputy v druhém sloupci mají stejnou délku.
-- **Stejná výška** — všechny textové inputy a select mají pevnou výšku `h-[2.5rem]`, aby dropdown nebyl vizuálně menší.
-- **Tlačítka vpravo** — řádek s tlačítky Zrušit / Uložit je zarovnaný doprava (`w-full flex justify-end gap-3 pt-4`).
+- Jedna pole = `.form-group` s `.form-label` a `.input` (nebo `.select`).
+- Tlačítka vpravo – řádek s třídou `.form-actions` a tlačítky `.btn`.
 
-**Struktura řádku (pole):**
+**Pole (input):**
 ```html
-<div class="grid grid-cols-[minmax(0,11rem)_1fr] gap-4 items-center">
-  <label for="id_pole" class="text-sm font-medium text-gray-700">Popisek *</label>
-  <input type="text" id="id_pole" name="pole"
-         class="w-full px-3 py-2 h-[2.5rem] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-         placeholder="…">
+<div class="form-group">
+  <label for="id_pole" class="form-label">Popisek *</label>
+  <input type="text" id="id_pole" name="pole" class="input" placeholder="…">
 </div>
 ```
 
-**Select (dropdown)** — stejná výška a vzhled jako input, vlastní šipka (bez nativního menšího vzhledu):
+**Select:**
 ```html
-<div class="grid grid-cols-[minmax(0,11rem)_1fr] gap-4 items-center">
-  <label for="role" class="text-sm font-medium text-gray-700">Role</label>
-  <select id="role" name="role" class="w-full px-3 py-2 h-[2.5rem] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base bg-white appearance-none cursor-pointer" style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 24 24%27 stroke=%27%236b7280%27%3E%3Cpath stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M19 9l-7 7-7-7%27/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.25rem; padding-right: 2rem;">
+<div class="form-group">
+  <label for="role" class="form-label">Role</label>
+  <select id="role" name="role" class="input select">
     <option value="a">Možnost A</option>
     <option value="b">Možnost B</option>
   </select>
 </div>
 ```
 
-**Textarea** — popisek a textarea na jednom řádku, textarea může být víceřádková; zarovnání nahoru:
+**Textarea:**
 ```html
-<div class="grid grid-cols-[minmax(0,11rem)_1fr] gap-4 items-start">
-  <label for="note" class="text-sm font-medium text-gray-700 pt-2">Poznámka</label>
-  <textarea id="note" name="note" rows="3" placeholder="…"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"></textarea>
+<div class="form-group">
+  <label for="note" class="form-label">Poznámka</label>
+  <textarea id="note" name="note" rows="3" class="input" placeholder="…"></textarea>
 </div>
 ```
 
 **Formulář a tlačítka:**
 ```html
-<form method="post" action="…" class="space-y-5 w-full">
-  <!-- řádky polí podle výše -->
-  <div class="w-full flex justify-end gap-3 pt-4">
-    <a href="…" class="px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">Zrušit</a>
-    <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">Uložit</button>
+<form method="post" action="…">
+  <!-- form-group pole -->
+  <div class="form-actions">
+    <a href="…" class="btn btn-outline">Zrušit</a>
+    <button type="submit" class="btn btn-primary">Uložit</button>
   </div>
 </form>
 ```
-
-**Příklad použití:** formuláře uživatelů, nastavení, přihlášení a další entity; použijte tam, kde má být konzistentní layout (label vlevo, input vpravo).
 
 ---
 
 ### Text input
 ```html
-<div>
-  <label for="field_name" class="block text-sm font-medium text-gray-700 mb-2">Label</label>
-  <input type="text" id="field_name" name="field_name" 
-         class="w-full px-3 py-2 border border-gray-300 rounded-lg h-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-         placeholder="Placeholder text">
+<div class="form-group">
+  <label for="field_name" class="form-label">Label</label>
+  <input type="text" id="field_name" name="field_name" class="input" placeholder="Placeholder text">
 </div>
 ```
 
 ### Textarea
 ```html
-<div>
-  <label for="field_name" class="block text-sm font-medium text-gray-700 mb-2">Label</label>
-  <textarea id="field_name" name="field_name" rows="4"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Placeholder text"></textarea>
+<div class="form-group">
+  <label for="field_name" class="form-label">Label</label>
+  <textarea id="field_name" name="field_name" rows="4" class="input" placeholder="Placeholder text"></textarea>
 </div>
 ```
 
 ### Select
 ```html
-<div>
-  <label for="field_name" class="block text-sm font-medium text-gray-700 mb-2">Label</label>
-  <select id="field_name" name="field_name" 
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg h-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+<div class="form-group">
+  <label for="field_name" class="form-label">Label</label>
+  <select id="field_name" name="field_name" class="input select">
     <option value="">Vyberte možnost</option>
     <option value="1">Možnost 1</option>
     <option value="2">Možnost 2</option>
@@ -172,72 +132,54 @@ Pro konzistentní vzhled používejte tuto šablonu pro všechny formuláře v a
 
 ### Checkbox
 ```html
-<label class="flex items-center">
-  <input type="checkbox" name="field_name" 
-         class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-  <span class="ml-2 text-sm text-gray-700">Text checkboxu</span>
-</label>
+<div class="form-group">
+  <label class="checkbox-label">
+    <input type="checkbox" name="field_name" class="input">
+    <span>Text checkboxu</span>
+  </label>
+</div>
 ```
 
 ### Radio button
 ```html
-<div class="flex space-x-4">
-  <label class="flex items-center">
-    <input type="radio" name="field_name" value="value1"
-           class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-    <span class="ml-2 text-sm text-gray-700">Možnost 1</span>
-  </label>
-  <label class="flex items-center">
-    <input type="radio" name="field_name" value="value2"
-           class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-    <span class="ml-2 text-sm text-gray-700">Možnost 2</span>
-  </label>
+<div class="form-group">
+  <label class="radio-label"><input type="radio" name="field_name" value="value1" class="input"> Možnost 1</label>
+  <label class="radio-label"><input type="radio" name="field_name" value="value2" class="input"> Možnost 2</label>
 </div>
 ```
 
 ### Number input
 ```html
-<div>
-  <label for="field_name" class="block text-sm font-medium text-gray-700 mb-2">Label</label>
-  <input type="number" id="field_name" name="field_name" min="0" max="100"
-         class="w-full px-3 py-2 border border-gray-300 rounded-lg h-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+<div class="form-group">
+  <label for="field_name" class="form-label">Label</label>
+  <input type="number" id="field_name" name="field_name" min="0" max="100" class="input">
 </div>
 ```
 
 ### Date input
 ```html
-<div>
-  <label for="field_name" class="block text-sm font-medium text-gray-700 mb-2">Label</label>
-  <input type="date" id="field_name" name="field_name"
-         class="w-full px-3 py-2 border border-gray-300 rounded-lg h-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+<div class="form-group">
+  <label for="field_name" class="form-label">Label</label>
+  <input type="date" id="field_name" name="field_name" class="input">
 </div>
 ```
 
-### Formulář s grid layoutem
+### Formulář s dvousloupcovým layoutem
 ```html
-<form method="post" action="/path/to/submit" class="space-y-6">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div>
-      <label for="field1" class="block text-sm font-medium text-gray-700 mb-2">Pole 1</label>
-      <input type="text" id="field1" name="field1" 
-             class="w-full px-3 py-2 border border-gray-300 rounded-lg h-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+<form method="post" action="/path/to/submit">
+  <div class="form-row form-row--2cols">
+    <div class="form-group">
+      <label for="field1" class="form-label">Pole 1</label>
+      <input type="text" id="field1" name="field1" class="input">
     </div>
-    <div>
-      <label for="field2" class="block text-sm font-medium text-gray-700 mb-2">Pole 2</label>
-      <input type="text" id="field2" name="field2" 
-             class="w-full px-3 py-2 border border-gray-300 rounded-lg h-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    <div class="form-group">
+      <label for="field2" class="form-label">Pole 2</label>
+      <input type="text" id="field2" name="field2" class="input">
     </div>
   </div>
-  
-  <div class="flex justify-end space-x-3">
-    <a href="/path/to/back" 
-       class="px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
-      Zrušit
-    </a>
-    <button type="submit" 
-            class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-      Uložit
-    </button>
+  <div class="form-actions">
+    <a href="/path/to/back" class="btn btn-outline">Zrušit</a>
+    <button type="submit" class="btn btn-primary">Uložit</button>
   </div>
 </form>
 ```
@@ -402,16 +344,16 @@ Pro konzistentní vzhled používejte tuto šablonu pro všechny formuláře v a
 
 ### Karta vstupu v Nastavení (odkaz na podsekci)
 
-Používá se na stránce nastavení pro odkaz na podmodul. Pevná velikost **620×120 px**, text velký (`text-2xl`), vpravo šipka. Mřížka 2 sloupce – viz [TEMPLATE_LAYOUT.md](./TEMPLATE_LAYOUT.md).
+Používá se na stránce nastavení pro odkaz na podmodul. Pevná velikost **620×120 px**, název a šipka vpravo. Třídy z app.css: `.settings-grid`, `.settings-card`, `.settings-card-title`, `.settings-card-arrow`. Viz [TEMPLATE_LAYOUT.md](./TEMPLATE_LAYOUT.md).
 
 ```html
-<a href="/settings/podmodul-1" class="flex items-center px-6 py-4 w-[620px] h-[120px] bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-colors text-left">
-  <span class="text-2xl font-medium text-gray-900">Podmodul 1</span>
-  <svg class="w-6 h-6 ml-auto text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-</a>
+<div class="settings-grid page-content-box">
+  <a href="/settings/podmodul-1" class="settings-card">
+    <span class="settings-card-title">Podmodul 1</span>
+    <span class="settings-card-arrow">→</span>
+  </a>
+</div>
 ```
-
-- Kontejner mřížky: `page-content-box grid grid-cols-2 gap-4 min-h-[45vh]`.
 
 ---
 

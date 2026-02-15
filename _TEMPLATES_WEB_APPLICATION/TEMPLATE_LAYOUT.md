@@ -2,6 +2,8 @@
 
 Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro webové aplikace. Použijte tyto vzory pro zajištění konzistentního vzhledu a chování napříč všemi aplikacemi.
 
+**Styling:** Aplikace používá **lokální CSS** – soubor `app/static/css/app.css`. Nepoužívá se Tailwind ani jiný utility framework. V příkladech používejte třídy z app.css: `.container`, `.card`, `.card-header`, `.card-body`, `.page-header`, `.page-title`, `.btn`, `.btn-primary`, `.btn-outline` atd.
+
 ## 📋 Obsah
 
 1. [Základní struktura stránky](#základní-struktura-stránky)
@@ -18,17 +20,15 @@ Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro 
 
 ### Kontejner obsahu v base.html
 
-V `base.html` je hlavní obsah obalen kontejnerem s minimální výškou:
+V `base.html` je hlavní obsah obalen kontejnerem (třída `.container` z app.css):
 
 ```html
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
-    <div class="content-area min-h-[55vh]">
-        {% block content %}{% endblock %}
-    </div>
+<main class="container">
+    {% block content %}{% endblock %}
 </main>
 ```
 
-Stránky tedy vkládají obsah do bloku `content`; šířka a padding jsou dány `main`.
+Stránky tedy vkládají obsah do bloku `content`; šířka a padding jsou dány `main` / `.container`.
 
 ### Minimální template
 
@@ -37,42 +37,34 @@ Stránky tedy vkládají obsah do bloku `content`; šířka a padding jsou dány
 {% block title %}{{ page_title or 'Název stránky' }}{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
-  <!-- Hlavička stránky -->
-  <div class="mb-8">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-        {% if page_description %}
-        <p class="text-gray-600 mt-2">{{ page_description }}</p>
-        {% endif %}
-      </div>
-      <div class="flex space-x-3">
-        <!-- Navigační tlačítka -->
-      </div>
-    </div>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ page_title }}</h1>
+    {% if page_description %}
+    <p class="page-subtitle">{{ page_description }}</p>
+    {% endif %}
   </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <!-- Navigační tlačítka: .btn .btn-primary atd. -->
+  </div>
+</div>
 
-  <!-- Hlavní obsah -->
-  <section class="page-content-box bg-white rounded-xl shadow-sm border border-gray-200 p-6 min-h-[45vh]">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Nadpis sekce</h2>
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Nadpis sekce</h2>
+  </div>
+  <div class="card-body">
     <!-- Obsah sekce -->
-  </section>
+  </div>
 </div>
 {% endblock %}
 ```
 
-**Poznámka:** `page_description` je volitelný – některé stránky (např. Nastavení, Přehled) mají jen nadpis `h1` bez druhého řádku.
+**Poznámka:** `page_description` je volitelný – některé stránky mají jen nadpis. Třídy `.page-header`, `.page-title`, `.page-subtitle`, `.card`, `.card-header`, `.card-body` jsou definované v app.css.
 
-### Maximální šířka kontejneru
+### Kontejner obsahu
 
-**Vždy používejte:** `max-w-7xl mx-auto` pro vnitřní obsah stránky uvnitř `{% block content %}`.
-
-```html
-<div class="max-w-7xl mx-auto">
-  <!-- Všechen obsah stránky -->
-</div>
-```
+Hlavní obsah stránky je uvnitř `<main class="container">` v base.html. V bloku `content` používejte sekce s třídou `.card` pro boxy; šířku řeší kontejner v base.html.
 
 ---
 
@@ -81,14 +73,12 @@ Stránky tedy vkládají obsah do bloku `content`; šířka a padding jsou dány
 ### Základní hlavička
 
 ```html
-<div class="mb-8">
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-      {% if page_description %}
-      <p class="text-gray-600 mt-2">{{ page_description }}</p>
-      {% endif %}
-    </div>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ page_title }}</h1>
+    {% if page_description %}
+    <p class="page-subtitle">{{ page_description }}</p>
+    {% endif %}
   </div>
 </div>
 ```
@@ -98,36 +88,23 @@ Stránky tedy vkládají obsah do bloku `content`; šířka a padding jsou dány
 Na stránkách jako Přehled nebo Nastavení stačí jeden řádek:
 
 ```html
-<div class="mb-8">
-  <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
+<div class="page-header">
+  <h1 class="page-title">{{ page_title }}</h1>
 </div>
 ```
 
 ### Hlavička s navigačními tlačítky
 
 ```html
-<div class="mb-8">
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-      <p class="text-gray-600 mt-2">{{ page_description }}</p>
-    </div>
-    <div class="flex space-x-3">
-      <a href="/path/to/action" 
-         class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-        </svg>
-        Nová akce
-      </a>
-      <a href="/path/to/history" 
-         class="inline-flex items-center px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        Historie
-      </a>
-    </div>
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 class="page-title">{{ page_title }}</h1>
+    <p class="page-subtitle">{{ page_description }}</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <a href="/path/to/action" class="btn btn-primary">Nová akce</a>
+    <a href="/path/to/history" class="btn btn-secondary">Historie</a>
+  </div>
   </div>
 </div>
 ```
@@ -135,20 +112,12 @@ Na stránkách jako Přehled nebo Nastavení stačí jeden řádek:
 ### Hlavička s tlačítkem zpět
 
 ```html
-<div class="mb-8">
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-      <p class="text-gray-600 mt-2">{{ page_description }}</p>
-    </div>
-    <a href="/path/to/back" 
-       class="inline-flex items-center px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
-      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-      </svg>
-      Zpět
-    </a>
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+  <div>
+    <h1 class="page-title">{{ page_title }}</h1>
+    <p class="page-subtitle">{{ page_description }}</p>
   </div>
+  <a href="/path/to/back" class="btn btn-outline btn-sm">← Zpět</a>
 </div>
 ```
 
@@ -158,24 +127,26 @@ Na stránkách jako Přehled nebo Nastavení stačí jeden řádek:
 
 ### Standardní box
 
-**Základní struktura pro všechny sekce:**
+**Základní struktura pro všechny sekce** – použijte třídu `.card` z app.css:
 
 ```html
-<section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-  <h2 class="text-lg font-semibold text-gray-900 mb-4">Nadpis sekce</h2>
-  <!-- Obsah sekce -->
-</section>
+<div class="card">
+  <h2 class="card-title">Nadpis sekce</h2>
+  <div class="card-body">
+    <!-- Obsah sekce -->
+  </div>
+</div>
 ```
 
 ### Box s hlavičkou
 
 ```html
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-  <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-    <h2 class="text-lg font-semibold text-gray-900">Nadpis</h2>
-    <p class="text-sm text-gray-600 mt-1">Popis sekce</p>
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Nadpis</h2>
+    <p class="page-subtitle" style="margin-top: 0.25rem;">Popis sekce</p>
   </div>
-  <div class="p-6">
+  <div class="card-body">
     <!-- Obsah -->
   </div>
 </div>
@@ -184,45 +155,49 @@ Na stránkách jako Přehled nebo Nastavení stačí jeden řádek:
 ### Box bez nadpisu
 
 ```html
-<section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-  <!-- Obsah bez nadpisu -->
-</section>
+<div class="card">
+  <div class="card-body">
+    <!-- Obsah bez nadpisu -->
+  </div>
+</div>
 ```
 
 ### Stránka Nastavení – mřížka vstupních karet
 
-Stránka typu „Nastavení“ (výběr podmodulů) používá **mřížku 2 sloupce** a karty s pevnou velikostí **620×120 px**. Každá karta je odkaz s názvem a šipkou vpravo. Třída kontejneru: `page-content-box`.
+Stránka typu „Nastavení“ (výběr podmodulů) používá **mřížku 2 sloupce** a karty s pevnou velikostí **620×120 px**. Každá karta je odkaz s názvem a šipkou vpravo. V app.css definujte např. `.settings-grid` a `.settings-card`.
 
 ```html
-<div class="page-content-box grid grid-cols-2 gap-4 min-h-[45vh]">
-  <a href="/settings/podmodul-1" class="flex items-center px-6 py-4 w-[620px] h-[120px] bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-colors text-left">
-    <span class="text-2xl font-medium text-gray-900">Podmodul 1</span>
-    <svg class="w-6 h-6 ml-auto text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+<div class="settings-grid page-content-box">
+  <a href="/settings/podmodul-1" class="settings-card">
+    <span class="settings-card-title">Podmodul 1</span>
+    <span class="settings-card-arrow">→</span>
   </a>
-  <a href="/settings/podmodul-2" class="flex items-center px-6 py-4 w-[620px] h-[120px] bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-colors text-left">
-    <span class="text-2xl font-medium text-gray-900">Podmodul 2</span>
-    <svg class="w-6 h-6 ml-auto text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+  <a href="/settings/podmodul-2" class="settings-card">
+    <span class="settings-card-title">Podmodul 2</span>
+    <span class="settings-card-arrow">→</span>
   </a>
 </div>
 ```
 
-- Kontejner: `page-content-box grid grid-cols-2 gap-4 min-h-[45vh]`.
-- Karta: `flex items-center`, `w-[620px] h-[120px]`, `rounded-xl`, text `text-2xl font-medium`, šipka vpravo (`ml-auto shrink-0`).
+- Kontejner: `.settings-grid` (grid 2 sloupce, gap), `.page-content-box` pro minimální výšku.
+- Karta: `.settings-card` (620×120 px, flex, hover), `.settings-card-title`, `.settings-card-arrow`.
 
 ### Více boxů vedle sebe
 
 ```html
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-  <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Sekce 1</h2>
-    <!-- Obsah -->
-  </section>
-  <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Sekce 2</h2>
-    <!-- Obsah -->
-  </section>
+<div class="card-grid">
+  <div class="card">
+    <h2 class="card-title">Sekce 1</h2>
+    <div class="card-body"><!-- Obsah --></div>
+  </div>
+  <div class="card">
+    <h2 class="card-title">Sekce 2</h2>
+    <div class="card-body"><!-- Obsah --></div>
+  </div>
 </div>
 ```
+
+V app.css: `.card-grid` (např. `display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;` a na mobilu jeden sloupec).
 
 ---
 
@@ -235,21 +210,15 @@ Stránka typu „Nastavení“ (výběr podmodulů) používá **mřížku 2 slo
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
-  <!-- Hlavička -->
-  <div class="mb-8">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-        <p class="text-gray-600 mt-2">{{ page_description }}</p>
-      </div>
-    </div>
-  </div>
+<div class="page-header">
+  <h1 class="page-title">{{ page_title }}</h1>
+  {% if page_description %}<p class="page-subtitle">{{ page_description }}</p>{% endif %}
+</div>
 
-  <!-- Hlavní sekce -->
-  <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+<div class="card">
+  <div class="card-body">
     <!-- Obsah -->
-  </section>
+  </div>
 </div>
 {% endblock %}
 ```
@@ -261,28 +230,19 @@ Stránka typu „Nastavení“ (výběr podmodulů) používá **mřížku 2 slo
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
-  <!-- Hlavička -->
-  <div class="mb-8">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-        <p class="text-gray-600 mt-2">{{ page_description }}</p>
-      </div>
-    </div>
-  </div>
+<div class="page-header">
+  <h1 class="page-title">{{ page_title }}</h1>
+  {% if page_description %}<p class="page-subtitle">{{ page_description }}</p>{% endif %}
+</div>
 
-  <!-- Sekce 1 -->
-  <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Sekce 1</h2>
-    <!-- Obsah -->
-  </section>
+<div class="card">
+  <h2 class="card-title">Sekce 1</h2>
+  <div class="card-body"><!-- Obsah --></div>
+</div>
 
-  <!-- Sekce 2 -->
-  <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Sekce 2</h2>
-    <!-- Obsah -->
-  </section>
+<div class="card">
+  <h2 class="card-title">Sekce 2</h2>
+  <div class="card-body"><!-- Obsah --></div>
 </div>
 {% endblock %}
 ```
@@ -294,26 +254,19 @@ Stránka typu „Nastavení“ (výběr podmodulů) používá **mřížku 2 slo
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
-  <!-- Hlavička -->
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-    <p class="text-gray-600 mt-2">{{ page_description }}</p>
+<div class="page-header">
+  <h1 class="page-title">{{ page_title }}</h1>
+  {% if page_description %}<p class="page-subtitle">{{ page_description }}</p>{% endif %}
+</div>
+
+<div class="card-grid">
+  <div class="card">
+    <h2 class="card-title">Levý sloupec</h2>
+    <div class="card-body"><!-- Obsah --></div>
   </div>
-
-  <!-- Dvousloupcový obsah -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Levý sloupec -->
-    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Levý sloupec</h2>
-      <!-- Obsah -->
-    </section>
-
-    <!-- Pravý sloupec -->
-    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Pravý sloupec</h2>
-      <!-- Obsah -->
-    </section>
+  <div class="card">
+    <h2 class="card-title">Pravý sloupec</h2>
+    <div class="card-body"><!-- Obsah --></div>
   </div>
 </div>
 {% endblock %}
@@ -326,41 +279,24 @@ Stránka typu „Nastavení“ (výběr podmodulů) používá **mřížku 2 slo
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
-  <!-- Hlavička -->
-  <div class="mb-8">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-        <p class="text-gray-600 mt-2">{{ page_description }}</p>
-      </div>
-      <a href="/path/to/back" 
-         class="inline-flex items-center px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-        </svg>
-        Zpět
-      </a>
-    </div>
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+  <div>
+    <h1 class="page-title">{{ page_title }}</h1>
+    {% if page_description %}<p class="page-subtitle">{{ page_description }}</p>{% endif %}
   </div>
+  <a href="/path/to/back" class="btn btn-outline btn-sm">← Zpět</a>
+</div>
 
-  <!-- Formulář -->
-  <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <form method="post" action="/path/to/submit" class="space-y-6">
-      <!-- Formulářová pole -->
-      
-      <div class="flex justify-end space-x-3">
-        <a href="/path/to/back" 
-           class="px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
-          Zrušit
-        </a>
-        <button type="submit" 
-                class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-          Uložit
-        </button>
+<div class="card">
+  <div class="card-body">
+    <form method="post" action="/path/to/submit">
+      <!-- form-group pole dle TEMPLATE_COMPONENTS -->
+      <div class="form-actions">
+        <a href="/path/to/back" class="btn btn-outline">Zrušit</a>
+        <button type="submit" class="btn btn-primary">Uložit</button>
       </div>
     </form>
-  </section>
+  </div>
 </div>
 {% endblock %}
 ```
@@ -371,15 +307,12 @@ Stránka typu „Nastavení“ (výběr podmodulů) používá **mřížku 2 slo
 
 ### Tabs jako tlačítka (v obsahu stránky)
 
-Pro záložky uvnitř stránky (ne hlavní menu):
+Pro záložky uvnitř stránky (ne hlavní menu). V app.css definujte např. `.tabs` (flex, gap) a `.tabs-item`, `.tabs-item--active` (vzhled tlačítka / aktivní stav):
 
 ```html
-<div class="flex space-x-2 mb-6">
-  <a href="/path/to/tab1" 
-     class="px-4 py-2 {% if current_tab == 'tab1' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} font-medium rounded-lg transition-colors">
-    Tab 1
-  </a>
-  <!-- ... -->
+<div class="tabs">
+  <a href="/path/to/tab1" class="tabs-item {% if current_tab == 'tab1' %}tabs-item--active{% endif %}">Tab 1</a>
+  <a href="/path/to/tab2" class="tabs-item {% if current_tab == 'tab2' %}tabs-item--active{% endif %}">Tab 2</a>
 </div>
 ```
 
@@ -388,143 +321,62 @@ Pro záložky uvnitř stránky (ne hlavní menu):
 ### Navigační tlačítka v hlavičce
 
 ```html
-<div class="flex space-x-3">
-  <a href="/path/to/new" 
-     class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-    </svg>
-    Nová položka
-  </a>
-  <a href="/path/to/history" 
-     class="inline-flex items-center px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
-    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-    Historie
-  </a>
+<div style="display: flex; gap: 0.75rem;">
+  <a href="/path/to/new" class="btn btn-primary">Nová položka</a>
+  <a href="/path/to/history" class="btn btn-secondary">Historie</a>
 </div>
 ```
+
+(Případně definujte v app.css třídu např. `.page-header-actions` pro flex a gap.)
 
 ---
 
 ## Prázdný stav
 
+V app.css lze definovat třídu `.empty-state` (středovaný blok, ikona, nadpis, text, tlačítko).
+
 ### Standardní prázdný stav
 
 ```html
-<div class="text-center py-12">
-  <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-    </svg>
-  </div>
-  <h3 class="text-lg font-medium text-gray-900 mb-2">Žádné položky</h3>
-  <p class="text-gray-600 mb-6">Zatím zde nejsou žádné položky k zobrazení.</p>
-  <a href="/path/to/new" 
-     class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-    Přidat první položku
-  </a>
+<div class="empty-state">
+  <div class="empty-state-icon"><!-- ikona nebo obrázek --></div>
+  <h3 class="empty-state-title">Žádné položky</h3>
+  <p class="empty-state-text">Zatím zde nejsou žádné položky k zobrazení.</p>
+  <a href="/path/to/new" class="btn btn-primary">Přidat první položku</a>
 </div>
 ```
 
 ### Prázdný stav v boxu
 
 ```html
-<section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-  {% if items %}
-    <!-- Obsah s položkami -->
-  {% else %}
-    <div class="text-center py-12">
-      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M..."></path>
-        </svg>
+<div class="card">
+  <div class="card-body">
+    {% if items %}
+      <!-- Obsah s položkami -->
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon"><!-- ikona --></div>
+        <h3 class="empty-state-title">Žádné položky</h3>
+        <p class="empty-state-text">Zatím zde nejsou žádné položky k zobrazení.</p>
+        <a href="/path/to/new" class="btn btn-primary">Přidat první položku</a>
       </div>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">Žádné položky</h3>
-      <p class="text-gray-600 mb-6">Zatím zde nejsou žádné položky k zobrazení.</p>
-      <a href="/path/to/new" 
-         class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-        Přidat první položku
-      </a>
-    </div>
-  {% endif %}
-</section>
+    {% endif %}
+  </div>
+</div>
 ```
 
 ---
 
 ## Best practices
 
-### 1. Maximální šířka
-
-**Vždy používejte:** `max-w-7xl mx-auto` pro hlavní obsah
-
-```html
-<div class="max-w-7xl mx-auto">
-  <!-- Všechen obsah -->
-</div>
-```
-
-### 2. Spacing mezi sekcemi
-
-**Standardní spacing:** `mb-6` mezi sekcemi
-
-```html
-<section class="... mb-6">Sekce 1</section>
-<section class="... mb-6">Sekce 2</section>
-<section class="...">Sekce 3</section>
-```
-
-### 3. Hlavička stránky
-
-**Vždy obsahuje:**
-- Nadpis: `text-3xl font-bold text-gray-900`
-- Popis: `text-gray-600 mt-2`
-- Volitelně navigační tlačítka vpravo
-
-### 4. Sekce
-
-**Standardní struktura:**
-- Bílý box: `bg-white rounded-xl shadow-sm border border-gray-200`
-- Padding: `p-6`
-- Margin bottom: `mb-6`
-- Nadpis sekce: `text-lg font-semibold text-gray-900 mb-4`
-
-### 5. Transitions
-
-**Vždy přidávejte:** `transition-colors` k interaktivním prvkům
-
-```html
-<button class="... transition-colors hover:bg-blue-700">
-<a href="..." class="... transition-colors hover:bg-gray-200">
-```
-
-### 6. Responsivní design
-
-**Používejte grid s breakpointy:**
-- `grid-cols-1` - mobil
-- `md:grid-cols-2` - tablet
-- `lg:grid-cols-3` - desktop
-
-```html
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  <!-- Položky -->
-</div>
-```
-
-### 7. Konzistentní názvy
-
-- **Titulky stránek:** Používejte pouze název na hlavní stránce
-- **Podstránky:** Formát "Hlavní název - Podnázev" v `_title`
-- **Sekce:** Používejte `text-lg font-semibold` pro nadpisy sekcí
-
-### 8. Prázdný stav
-
-**Vždy zobrazujte prázdný stav:**
-- Když není žádný obsah
-- S ikonou, nadpisem, popisem a akčním tlačítkem
-- Uvnitř sekce nebo jako samostatná sekce
+1. **Kontejner** – Hlavní obsah je v `<main class="container">` v base.html; v bloku `content` nepřepisujte šířku, kontejner ji určuje.
+2. **Hlavička** – Používejte `.page-header`, `.page-title`, `.page-subtitle`; volitelně navigační tlačítka `.btn` vpravo.
+3. **Sekce** – Jedna sekce = jeden `.card` s `.card-title` a `.card-body`; více boxů vedle sebe = `.card-grid` + `.card`.
+4. **Formuláře** – Třídy `.form-group`, `.form-label`, `.input`, `.form-actions`, `.btn` (viz TEMPLATE_COMPONENTS).
+5. **Prázdný stav** – Třída `.empty-state` (v app.css) s ikonou, nadpisem, textem a tlačítkem `.btn btn-primary`.
+6. **Transitions** – Interaktivní prvky (tlačítka, odkazy) mají přechody definované v app.css u `.btn` a příbuzných tříd.
+7. **Responzivita** – Mřížky (`.card-grid`, `.settings-grid`) definujte v app.css s media queries dle potřeby.
+8. **Konzistentní názvy** – Titulky stránek a sekcí předávejte z backendu; pro nadpisy sekcí používejte `.card-title`.
 
 ---
 

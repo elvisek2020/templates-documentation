@@ -23,7 +23,7 @@ Projekt používá **modulární architekturu** s následujícími charakteristi
 
 - **Backend:** Python s FastAPI frameworkem
 - **Frontend:** Server-side rendering s Jinja2 templaty
-- **Styling:** Tailwind CSS (utility-first CSS framework)
+- **Styling:** Lokální CSS – jeden soubor `app/static/css/app.css` (CSS proměnné, sémantické třídy)
 - **Interaktivita:** HTMX pro dynamické obsahy bez nutnosti psát JavaScript
 - **Databáze:** SQLite (oddělené databáze per aplikace)
 - **Autentizace:** OAuth2 proxy s integrací Entra ID
@@ -104,8 +104,8 @@ async def index(request: Request):
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto">
-  <h1>{{ page_title }}</h1>
+<div class="container">
+  <h1 class="page-title">{{ page_title }}</h1>
   {% if items %}
     {% for item in items %}
       <div>{{ item.name }}</div>
@@ -149,49 +149,56 @@ templates.env.filters["fmt_dt"] = fmt_dt
 - Přidávejte `aria-labels` pro přístupnost
 - Respektujte HTML5 standardy
 
-### Tailwind CSS
+### Lokální CSS (app.css)
 
-**Účel:** Utility-first CSS framework
-
-**Verze:** 2.2.19 (via CDN)
+**Účel:** Jediný zdroj stylů – soubor `app/static/css/app.css`, načítaný v `base.html`. Referenční kopie pro šablonu dokumentace je v **[reference_app.css](./reference_app.css)** (ve složce _TEMPLATES_WEB_APPLICATION) – pro nový projekt ji zkopírujte do `app/static/css/app.css`.
 
 **Klíčové vlastnosti:**
-- **Utility classes:** Rychlé stylování pomocí tříd
-- **Responsive design:** Breakpointy (sm, md, lg, xl)
-- **Konzistence:** Předdefinované barvy, spacing, typography
-- **Customizace:** Možnost rozšíření v `app.css`
+- **CSS proměnné (`:root`):** Barvy, stíny, radius – např. `var(--color-primary)`, `var(--color-bg)`, `var(--radius)`.
+- **Sémantické třídy:** `.card`, `.card-header`, `.card-body`, `.btn`, `.btn-primary`, `.btn-outline`, `.form-group`, `.input`, `.page-header`, `.page-title`, `.container` atd.
+- **Konzistence:** Jednotný vzhled bez externího frameworku, plná kontrola nad výstupem.
+- **Žádný Tailwind ani jiný utility framework** – vše je definované v app.css.
 
 **Základní použití:**
 
 ```html
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-  <h2 class="text-lg font-semibold text-gray-900 mb-4">Nadpis</h2>
-  <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-    Tlačítko
-  </button>
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Nadpis</h2>
+  </div>
+  <div class="card-body">
+    <button class="btn btn-primary">Tlačítko</button>
+  </div>
 </div>
 ```
 
 **Výhody:**
-- Rychlý vývoj
-- Konzistentní design
-- Malá velikost (pouze použité třídy)
-- Snadná údržba
+- Žádná závislost na CDN ani buildu
+- Jednoduchá údržba na jednom místě
+- Konzistentní design pomocí proměnných a tříd
+- Snadné rozšíření – nové komponenty doplníte do app.css
 
-**Custom CSS:**
-
-Pro vlastní styly použijte `app/static/css/app.css`:
+**Struktura app.css (příklad):**
 
 ```css
-/* Vlastní animace */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+:root {
+  --color-primary: #3b82f6;
+  --color-bg: #f9fafb;
+  --color-text: #1f2937;
+  --radius: 12px;
 }
 
-/* Vlastní komponenty */
-.custom-component {
-  /* Vlastní styly */
+.card {
+  background: var(--color-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
 }
 ```
 
@@ -502,7 +509,7 @@ Kompletní popis (Dockerfile, docker-compose, proměnné prostředí, OAuth2 pro
 
 Tento technologický stack poskytuje:
 
-✅ **Moderní technologie** - FastAPI, Tailwind CSS, HTMX  
+✅ **Moderní technologie** - FastAPI, lokální CSS (app.css), HTMX  
 ✅ **Vysoký výkon** - Asynchronní backend, optimalizovaný frontend  
 ✅ **Jednoduchost** - Minimální JavaScript, server-side rendering  
 ✅ **Modularita** - Snadné přidávání nových aplikací  
