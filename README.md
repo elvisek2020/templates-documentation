@@ -5,7 +5,7 @@ Kolekce agent skills, které drží konzistentní vzhled, architekturu a provozn
 ## Struktura
 
 ```
-_Templates/
+.
 ├── README.md
 └── skills/
     ├── web-app-ui/
@@ -48,7 +48,7 @@ DEST=~/.cursor/skills
 ```bash
 git clone --depth 1 https://github.com/elvisek2020/templates-documentation.git /tmp/templates-skills
 mkdir -p "$DEST"
-cp -R /tmp/templates-skills/_Templates/skills/. "$DEST/"
+cp -R /tmp/templates-skills/skills/. "$DEST/"
 rm -rf /tmp/templates-skills
 ```
 
@@ -57,7 +57,7 @@ rm -rf /tmp/templates-skills
 Base URL pro všechny příkazy:
 
 ```bash
-BASE=https://raw.githubusercontent.com/elvisek2020/templates-documentation/main/_Templates/skills
+BASE=https://raw.githubusercontent.com/elvisek2020/templates-documentation/main/skills
 ```
 
 **web-app-ui** (stránky, komponenty, menu, footer, styly):
