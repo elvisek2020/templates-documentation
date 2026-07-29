@@ -27,7 +27,7 @@ Kolekce agent skills, které drží konzistentní vzhled, architekturu a provozn
 
 ## Instalace
 
-Nejdřív si nastavte cílovou složku podle editoru:
+Nejdřív si nastavte cílovou složku podle editoru a base URL:
 
 ```bash
 # Claude Code:
@@ -35,6 +35,9 @@ DEST=~/.claude/skills
 
 # Cursor:
 DEST=~/.cursor/skills
+
+# Společné pro curl instalaci jednotlivých skills:
+BASE=https://raw.githubusercontent.com/elvisek2020/templates-documentation/main/skills
 ```
 
 **Poznámky:**
@@ -53,12 +56,6 @@ rm -rf /tmp/templates-skills
 ```
 
 ### Jednotlivé skills přes curl
-
-Base URL pro všechny příkazy:
-
-```bash
-BASE=https://raw.githubusercontent.com/elvisek2020/templates-documentation/main/skills
-```
 
 **web-app-ui** (stránky, komponenty, menu, footer, styly):
 
