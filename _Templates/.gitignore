@@ -1,0 +1,4 @@
+# Lokální záloha původních šablon – necommitovat
+# (skills/ a README.md jdou do gitu)
+_backup/
+.DS_Store

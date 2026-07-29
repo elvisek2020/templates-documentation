@@ -3664,3 +3664,66 @@ body.fit-bot-open {
     display: block;
 }
 
+/* ============================================================
+   Auth stránky (login, check-email, verify)
+   Použití: .auth-container > .card.auth-card > .card-body
+   Viz TEMPLATE_AUTH.md
+   ============================================================ */
+
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
+.auth-card {
+    max-width: 400px;
+    width: 100%;
+}
+
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: var(--color-text-light);
+    margin-bottom: 1.5rem;
+    font-size: 0.9375rem;
+}
+
+/* ============================================================
+   Alert / inline notifikace
+   Varianty: .alert--error, .alert--success, .alert--info
+   ============================================================ */
+
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.alert--error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #991b1b;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.alert--success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #065f46;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.alert--info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #1e40af;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}

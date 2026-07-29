@@ -9,3 +9,6 @@
 _backup/
 _docs/
 
+# Lokální obsah mimo publikované skills
+_Frameworks/
+workshop-framework-prompt.md

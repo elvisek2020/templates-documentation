@@ -11,8 +11,9 @@ Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro 
 3. [Sekce a boxy](#sekce-a-boxy)
 4. [Layout vzory](#layout-vzory)
 5. [Navigace](#navigace)
-6. [Prázdný stav](#prázdný-stav)
-7. [Best practices](#best-practices)
+6. [Auth layout](#auth-layout-přihlašovací-stránky)
+7. [Prázdný stav](#prázdný-stav)
+8. [Best practices](#best-practices)
 
 ---
 
@@ -328,6 +329,28 @@ Pro záložky uvnitř stránky (ne hlavní menu). V app.css definujte např. `.t
 ```
 
 (Případně definujte v app.css třídu např. `.page-header-actions` pro flex a gap.)
+
+---
+
+## Auth layout (přihlašovací stránky)
+
+Přihlašovací a ověřovací stránky používají **jiný layout než standardní stránky** — centrovaná karta, bez navigačního obsahu.
+
+> **Zdroj pravdy pro auth stránky: [TEMPLATE_AUTH.md](./TEMPLATE_AUTH.md)**
+>
+> Tam najdeš: přesné CSS definice, vizuální popis login page prvek po prvku, kompletní HTML šablony (login, check-email), JS logiku PassKey i backend routes. Tato sekce slouží jen jako přehled — pro implementaci nebo úpravu auth stránek vždy otevři TEMPLATE_AUTH.md.
+
+### Přehled CSS tříd (definice jsou v TEMPLATE_AUTH.md)
+
+| Třída | Účel |
+|---|---|
+| `.auth-container` | Centruje kartu na stránce (flex, min-height 60vh) |
+| `.auth-card` | Omezuje šířku karty na max 400 px |
+| `.auth-title` | Nadpis auth stránky — 1.5rem, tučný, vycentrovaný |
+| `.auth-subtitle` | Podnadpis / instrukce — šedý, vycentrovaný |
+| `.alert--error` | Inline chybová zpráva na login page |
+| `.alert--success` | Inline úspěšná zpráva |
+| `.alert--info` | Inline informační zpráva |
 
 ---
 
