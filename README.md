@@ -16,12 +16,19 @@ Kolekce agent skills, které drží konzistentní vzhled, architekturu a provozn
     └── github-project-setup/
 ```
 
+### Web app
+
 | Skill | Oblast |
 |-------|--------|
 | `web-app-ui` | Stránky, komponenty, menu, footer, styly z app.css |
 | `web-app-stack` | Technologický stack a architektura (FastAPI, HTMX, SQLite, moduly) |
 | `web-app-auth` | Přihlášení — Magic Link + PassKey/WebAuthn |
 | `web-app-smtp` | Odesílání e-mailů (aiosmtplib, TLS/STARTTLS) |
+
+### Kontejner & provoz
+
+| Skill | Oblast |
+|-------|--------|
 | `web-app-docker` | Dockerfile a Docker Compose aplikace |
 | `github-project-setup` | Git init, GitHub Actions, GHCR, deployment |
 
@@ -110,10 +117,15 @@ curl -fsSL "$BASE/github-project-setup/SKILL.md" -o "$DEST/github-project-setup/
 
 Po instalaci stačí v Cursoru nebo Claude Code pracovat normálně — agent si skill načte podle úkolu:
 
+**Web app**
+
 - úprava stránky / komponenty / stylů → `web-app-ui`
 - nový modul, architektura, stack → `web-app-stack`
 - přihlášení, magic link, passkey → `web-app-auth`
 - SMTP / e-maily → `web-app-smtp`
+
+**Kontejner & provoz**
+
 - Dockerfile / Compose → `web-app-docker`
 - GitHub Actions / GHCR / CI/CD → `github-project-setup`
 
