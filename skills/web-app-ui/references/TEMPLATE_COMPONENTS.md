@@ -1,581 +1,405 @@
-# Šablona komponent - Univerzální UI komponenty
+# Komponenty
 
-Tento dokument obsahuje kompletní seznam všech standardizovaných UI komponent. Použijte tyto komponenty pro zajištění konzistentního vzhledu a chování napříč všemi aplikacemi.
+Katalog komponent z `app.css`. Všechny fungují ve světlém i tmavém režimu a v obou paletách.
+Vizuální podobu si ověř v [preview.html](preview.html).
 
-**Styling:** Aplikace používá **lokální CSS** – soubor `app/static/css/app.css`. Nepoužívá se Tailwind. Všechny komponenty používají třídy z app.css (např. `.btn`, `.btn-primary`, `.card`, `.form-group`, `.input`, `.table`). V sekcích Tabulky, Badge, Karty (více karet), Modaly a Loading jsou příklady zatím s utility/inline třídami; reference_app.css obsahuje `.table`, `.chip`, `.badge` – pro modaly a spinner lze v app.css doplnit např. `.modal`, `.modal-overlay`, `.spinner`.
+## Obsah
 
-## 📦 Obsah
+1. [Ikony](#ikony)
+2. [Tlačítka](#tlačítka)
+3. [Rozbalovací menu](#rozbalovací-menu)
+4. [Formuláře](#formuláře)
+5. [Speciální vstupy](#speciální-vstupy)
+6. [Zprávy a stavy](#zprávy-a-stavy)
+7. [Badge, chip, štítek](#badge-chip-štítek)
+8. [Tabulky a seznamy](#tabulky-a-seznamy)
+9. [Záložky uvnitř stránky](#záložky-uvnitř-stránky)
+10. [Modal a toast](#modal-a-toast)
+11. [Průběh](#průběh)
 
-1. [Tlačítka](#tlačítka)
-2. [Formuláře](#formuláře)
-3. [Tabulky](#tabulky)
-4. [Badge a statusy](#badge-a-statusy)
-5. [Karty](#karty)
-6. [Modaly](#modaly)
-7. [Loading stavy](#loading-stavy)
-8. [Ikony](#ikony)
-9. [Notifikace](#notifikace)
+---
+
+## Ikony
+
+Ikony jsou inline SVG přes Jinja makro v `app/templates/_icons.html` — žádná externí
+knihovna, žádné načítání písma.
+
+```html
+{% from "_icons.html" import icon %}
+
+{{ icon('plus') }}              {# výchozí 20 px #}
+{{ icon('trash', 16) }}         {# jiná velikost #}
+{{ icon('check', 18, 'mr-2') }} {# doplňková třída #}
+```
+
+Makro (zkráceně):
+
+```html
+{%- macro icon(name, size=20, cls='') -%}
+<svg class="icon {{ cls }}" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24"
+     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true" focusable="false">
+{%- if name == 'plus' -%}<path d="M12 5v14M5 12h14"/>
+{%- elif name == 'check' -%}<path d="M20 6 9 17l-5-5"/>
+{%- endif -%}
+</svg>
+{%- endmacro -%}
+```
+
+Pravidla: ikona je vždy `aria-hidden`, význam nese text tlačítka nebo `aria-label`.
+Ikona dědí barvu (`currentColor`) — nikdy jí barvu nenastavuj napevno.
 
 ---
 
 ## Tlačítka
 
-Všechna tlačítka používají třídy z `app.css`. Základ: `.btn`, varianta: `.btn-primary`, `.btn-secondary`, `.btn-outline`, `.btn-danger`, velikost: `.btn-sm`, `.btn-large`.
-
-### Primární tlačítko (hlavní akce)
 ```html
-<button class="btn btn-primary">Uložit</button>
-```
-
-### Sekundární tlačítko (zpět, zrušit)
-```html
-<a href="/path/back" class="btn btn-secondary">Zpět</a>
-```
-
-### Outline tlačítko (sekundární akce)
-```html
-<button class="btn btn-outline">Zrušit</button>
-```
-
-### Destruktivní tlačítko (smazat)
-```html
+<button class="btn btn-primary">Hlavní akce</button>
+<button class="btn btn-secondary">Zvýrazněná vedlejší</button>
+<button class="btn btn-outline">Vedlejší akce</button>
+<button class="btn btn-ghost">Nenápadná akce</button>
 <button class="btn btn-danger">Smazat</button>
+<button class="btn btn-danger-ghost">Smazat (v menu)</button>
+
+<button class="btn btn-primary btn-lg">Velké (hlavní CTA)</button>
+<button class="btn btn-outline btn-sm">Malé (v řádku, v kartě)</button>
+<button class="btn btn-primary btn-block">Na celou šířku</button>
+
+<button class="btn btn-ghost btn-icon" aria-label="Smazat">{{ icon('trash') }}</button>
+<a href="/detail" class="btn btn-outline">{{ icon('arrow-right', 18) }}Odkaz jako tlačítko</a>
 ```
 
-### Malé tlačítko (v tabulkách, vedle položek)
+| Varianta | Kdy |
+|----------|-----|
+| `btn-primary` | právě jedna hlavní akce na stránce nebo v kartě |
+| `btn-outline` | vedlejší akce vedle hlavní |
+| `btn-ghost` | akce, která nemá poutat (zrušit, ikonová tlačítka) |
+| `btn-secondary` | akce v rámci obsahu, která má být vidět, ale není hlavní |
+| `btn-danger` | destruktivní potvrzení |
+
+Pravidla:
+
+- Text tlačítka je sloveso s předmětem: „Uložit zakázku“, ne „OK“.
+- Ikonové tlačítko vždy s `aria-label` a `title`.
+- Destruktivní akce potvrzuj modalem (`data-confirm`, skill `web-app-interactions`).
+- Nikdy nepiš `style="background: …"` — od toho jsou varianty.
+
+---
+
+## Rozbalovací menu
+
+Bez JavaScriptu, přes `<details>`:
+
 ```html
-<button class="btn btn-outline btn-sm">Editovat</button>
+<details class="dropdown">
+  <summary class="btn btn-ghost btn-icon" aria-label="Další akce">{{ icon('more') }}</summary>
+  <div class="dropdown-menu">
+    <a class="menu-item" href="/upravit">{{ icon('edit', 18) }}Upravit</a>
+    <form method="post" action="/duplikovat">
+      <button class="menu-item" type="submit">{{ icon('copy', 18) }}Duplikovat</button>
+    </form>
+    <div class="menu-divider"></div>
+    <form method="post" action="/smazat" data-confirm="Záznam bude trvale smazán."
+          data-confirm-title="Smazat?" data-confirm-ok="Smazat" data-confirm-danger>
+      <button class="menu-item menu-item--danger" type="submit">{{ icon('trash', 18) }}Smazat</button>
+    </form>
+  </div>
+</details>
 ```
 
-### Tlačítko jako odkaz
-```html
-<a href="/path/to/page" class="btn btn-primary">Otevřít</a>
-```
+Zavření při kliknutí mimo a klávesou Escape obstarává `app.js`.
 
 ---
 
 ## Formuláře
 
-Formuláře používají třídy z app.css: `.form-group`, `.form-label`, `.input`, `.select`, tlačítka `.btn`.
-
-**Zásady:**
-- Jedna pole = `.form-group` s `.form-label` a `.input` (nebo `.select`).
-- Tlačítka vpravo – řádek s třídou `.form-actions` a tlačítky `.btn`.
-
-**Pole (input):**
 ```html
 <div class="form-group">
-  <label for="id_pole" class="form-label">Popisek *</label>
-  <input type="text" id="id_pole" name="pole" class="input" placeholder="…">
+  <label class="form-label" for="name">Název</label>
+  <input class="input" id="name" name="name" required maxlength="255" placeholder="např. Objednávka 2026/01">
+  <p class="form-hint">Nápověda, co se do pole píše.</p>
 </div>
-```
 
-**Select:**
-```html
 <div class="form-group">
-  <label for="role" class="form-label">Role</label>
-  <select id="role" name="role" class="input select">
-    <option value="a">Možnost A</option>
-    <option value="b">Možnost B</option>
+  <label class="form-label" for="note">Poznámka <span class="optional">(volitelné)</span></label>
+  <textarea class="input" id="note" name="note" rows="4"></textarea>
+</div>
+
+<div class="form-group">
+  <label class="form-label" for="state">Stav</label>
+  <select class="input" id="state" name="state">
+    <option value="new">Nová</option>
   </select>
 </div>
-```
 
-**Textarea:**
-```html
-<div class="form-group">
-  <label for="note" class="form-label">Poznámka</label>
-  <textarea id="note" name="note" rows="3" class="input" placeholder="…"></textarea>
+<!-- dva sloupce, na mobilu pod sebou -->
+<div class="form-grid">
+  <div class="form-group">…</div>
+  <div class="form-group">…</div>
+  <div class="form-group span-2">…</div>
+</div>
+
+<!-- zaškrtávací pole a přepínače -->
+<label class="check-row">
+  <input type="checkbox" name="active" value="1" checked>
+  <span>Aktivní záznam</span>
+</label>
+
+<!-- pole s tlačítkem vedle -->
+<form method="post" action="/pridat" class="input-group">
+  <input class="input" name="value" placeholder="Nová hodnota" required>
+  <button class="btn btn-outline" type="submit">{{ icon('plus', 18) }}Přidat</button>
+</form>
+
+<!-- akce formuláře -->
+<div class="form-actions">
+  <button type="submit" class="btn btn-primary">Uložit</button>
+  <a href="/zpet" class="btn btn-ghost">Zrušit</a>
 </div>
 ```
 
-**Formulář a tlačítka:**
-```html
-<form method="post" action="…">
-  <!-- form-group pole -->
-  <div class="form-actions">
-    <a href="…" class="btn btn-outline">Zrušit</a>
-    <button type="submit" class="btn btn-primary">Uložit</button>
-  </div>
-</form>
-```
+Pravidla:
+
+- Každé pole má `<label class="form-label">` s `for`; skrytý popisek jen `.visually-hidden`,
+  nikdy úplně bez popisku.
+- Nepovinná pole označ `<span class="optional">(volitelné)</span>`, ne hvězdičkami u povinných.
+- Validaci nech na prohlížeči (`required`, `type`, `min`, `maxlength`) a doplň ji serverem.
+- Placeholder je příklad, ne náhrada popisku.
 
 ---
 
-### Text input
+## Speciální vstupy
+
+**Vyhledávací pole** (ikona uvnitř):
+
 ```html
-<div class="form-group">
-  <label for="field_name" class="form-label">Label</label>
-  <input type="text" id="field_name" name="field_name" class="input" placeholder="Placeholder text">
-</div>
+<label class="search-field">
+  <span class="visually-hidden">Hledat</span>
+  {{ icon('search', 18) }}
+  <input class="input" type="search" name="q" value="{{ q }}" placeholder="Hledat…" autocomplete="off">
+</label>
 ```
 
-### Textarea
-```html
-<div class="form-group">
-  <label for="field_name" class="form-label">Label</label>
-  <textarea id="field_name" name="field_name" rows="4" class="input" placeholder="Placeholder text"></textarea>
-</div>
-```
+**Volba jako karta** — když má volba popis nebo je jich málo a mají být vidět:
 
-### Select
 ```html
-<div class="form-group">
-  <label for="field_name" class="form-label">Label</label>
-  <select id="field_name" name="field_name" class="input select">
-    <option value="">Vyberte možnost</option>
-    <option value="1">Možnost 1</option>
-    <option value="2">Možnost 2</option>
-  </select>
-</div>
-```
-
-### Checkbox
-```html
-<div class="form-group">
-  <label class="checkbox-label">
-    <input type="checkbox" name="field_name" class="input">
-    <span>Text checkboxu</span>
+<div class="choice-list">
+  <label class="choice-card">
+    <input type="checkbox" name="parts" value="1" checked>
+    <span class="choice-card-text">
+      <span class="choice-card-title">Základní část</span>
+      <span class="choice-card-meta">Doplňující vysvětlení</span>
+    </span>
   </label>
 </div>
 ```
 
-### Radio button
+**Číselník s tlačítky** (lepší než `type=number` na mobilu):
+
 ```html
-<div class="form-group">
-  <label class="radio-label"><input type="radio" name="field_name" value="value1" class="input"> Možnost 1</label>
-  <label class="radio-label"><input type="radio" name="field_name" value="value2" class="input"> Možnost 2</label>
+<div class="stepper" data-stepper>
+  <button type="button" data-step="-1" aria-label="Snížit">{{ icon('minus', 18) }}</button>
+  <input type="number" name="qty" value="1" min="1" step="1" inputmode="numeric" aria-label="Počet">
+  <span class="stepper-suffix">ks</span>
+  <button type="button" data-step="1" aria-label="Zvýšit">{{ icon('plus', 18) }}</button>
+</div>
+
+<!-- rychlé předvolby k číselníku -->
+<div class="chips" data-preset-group="qty">
+  <button type="button" class="chip" data-set-value="1" data-target="qty">1×</button>
+  <button type="button" class="chip" data-set-value="5" data-target="qty">5×</button>
 </div>
 ```
 
-### Number input
-```html
-<div class="form-group">
-  <label for="field_name" class="form-label">Label</label>
-  <input type="number" id="field_name" name="field_name" min="0" max="100" class="input">
-</div>
-```
+Menší varianta: `.stepper.stepper--sm`. Obsluhu `data-stepper` dělá `app.js`.
 
-### Date input
-```html
-<div class="form-group">
-  <label for="field_name" class="form-label">Label</label>
-  <input type="date" id="field_name" name="field_name" class="input">
-</div>
-```
+**Nahrání souboru** (dropzóna):
 
-### Formulář s dvousloupcovým layoutem
 ```html
-<form method="post" action="/path/to/submit">
-  <div class="form-row form-row--2cols">
-    <div class="form-group">
-      <label for="field1" class="form-label">Pole 1</label>
-      <input type="text" id="field1" name="field1" class="input">
-    </div>
-    <div class="form-group">
-      <label for="field2" class="form-label">Pole 2</label>
-      <input type="text" id="field2" name="field2" class="input">
-    </div>
-  </div>
-  <div class="form-actions">
-    <a href="/path/to/back" class="btn btn-outline">Zrušit</a>
-    <button type="submit" class="btn btn-primary">Uložit</button>
-  </div>
-</form>
-```
-
-### Formulář s HTMX
-```html
-<form hx-post="/path/to/submit"
-      hx-target="#result"
-      hx-swap="innerHTML"
-      class="space-y-6">
-  <!-- Formulářová pole -->
-  <button type="submit" 
-          class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-    <span class="htmx-indicator animate-spin -ml-1 mr-3 h-4 w-4 text-white">
-      <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-    </span>
-    Odeslat
-  </button>
-</form>
-<div id="result"></div>
+<label class="file-drop" data-file-list="soubory">
+  <input type="file" name="files" accept=".md,.csv" multiple required>
+  <span class="file-drop-icon">{{ icon('upload', 26) }}</span>
+  <span class="file-drop-title">Přetáhněte soubory sem, nebo klikněte</span>
+  <span class="file-drop-hint">CSV nebo Markdown · max. 2 MB</span>
+</label>
+<ul class="file-list" id="soubory" aria-live="polite"></ul>
 ```
 
 ---
 
-## Tabulky
+## Zprávy a stavy
 
-### Základní tabulka
+Makro `alert` v `app/templates/_macros.html`:
+
 ```html
-<div class="overflow-x-auto">
-  <table class="min-w-full divide-y divide-gray-200">
-    <thead class="bg-gray-50">
+{% from "_macros.html" import alert %}
+
+{{ alert('success', 'Záznam byl uložen.') }}
+{{ alert('error', 'Uložení se nezdařilo.') }}
+{{ alert('warn', 'Zkontrolujte údaje.') }}
+{{ alert('info', 'Změny se projeví po obnovení.') }}
+
+{# s obsahem a akcí #}
+{% call alert('warn') %}
+  <strong>Záznam byl mezitím změněn.</strong> Vyberte, kterou verzi ponechat.
+  <div class="alert-actions">
+    <button class="btn btn-sm btn-outline">Ponechat cizí</button>
+    <button class="btn btn-sm btn-primary">Uložit moji</button>
+  </div>
+{% endcall %}
+```
+
+Prázdný stav:
+
+```html
+{% from "_macros.html" import empty_state %}
+{% call empty_state('search', 'Nic jsme nenašli', 'Zkuste jiné slovo.') %}
+  <a href="/seznam" class="btn btn-outline">Zrušit filtr</a>
+{% endcall %}
+```
+
+Rozdíl: `alert` je reakce na akci, `empty_state` je stav obrazovky. Krátkou zpětnou vazbu
+(uloženo, zkopírováno) řeš toastem, ne alertem přes půl stránky.
+
+---
+
+## Badge, chip, štítek
+
+```html
+<span class="badge">Neutrální</span>
+<span class="badge badge--accent">Zvýrazněný</span>
+<span class="badge badge--success">{{ icon('check', 12) }}Hotovo</span>
+<span class="badge badge--warn">Ke kontrole</span>
+<span class="badge badge--error">Chyba</span>
+
+<!-- filtr: odkaz nebo tlačítko -->
+<div class="chips">
+  <a href="/seznam" class="chip chip--active">Vše</a>
+  <a href="/seznam?filtr=moje" class="chip">{{ icon('heart', 16) }}Moje</a>
+</div>
+
+<!-- štítek s možností odebrat -->
+<span class="tag">štítek
+  <form method="post" action="/stitek/1/smazat">
+    <button type="submit" class="tag-remove" aria-label="Odebrat štítek">{{ icon('x', 14) }}</button>
+  </form>
+</span>
+```
+
+`badge` je stav (needituje se), `chip` je volba (klikací), `tag` je štítek u záznamu.
+
+---
+
+## Tabulky a seznamy
+
+Tabulka pro data s více sloupci:
+
+```html
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Název</th><th>Stav</th><th>Datum</th></tr></thead>
+    <tbody>
       <tr>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sloupec 1</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sloupec 2</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sloupec 3</th>
-        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Akce</th>
-      </tr>
-    </thead>
-    <tbody class="bg-white divide-y divide-gray-200">
-      <tr class="hover:bg-gray-50">
-        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Hodnota 1</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Hodnota 2</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Hodnota 3</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-          <div class="flex justify-end space-x-2">
-            <button class="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">Editovat</button>
-            <button class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Smazat</button>
-          </div>
-        </td>
+        <td>Záznam</td>
+        <td><span class="badge badge--success">Aktivní</span></td>
+        <td>20. 9. 2026</td>
       </tr>
     </tbody>
   </table>
 </div>
 ```
 
-### Tabulka s prázdným stavem
+Seznam řádků — lepší než tabulka tam, kde má řádek akci nebo se čte na mobilu:
+
 ```html
-{% if items %}
-  <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
-      <!-- Tabulka -->
-    </table>
-  </div>
-{% else %}
-  <div class="text-center py-12">
-    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-      <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-      </svg>
-    </div>
-    <h3 class="text-lg font-medium text-gray-900 mb-2">Žádné položky</h3>
-    <p class="text-gray-600 mb-6">Zatím zde nejsou žádné položky k zobrazení.</p>
-    <a href="/path/to/new" 
-       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-      Přidat první položku
-    </a>
-  </div>
-{% endif %}
-```
-
----
-
-## Badge a statusy
-
-### Status badge - Úspěch
-```html
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-  Aktivní
-</span>
-```
-
-### Status badge - Chyba
-```html
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-  Neaktivní
-</span>
-```
-
-### Status badge - Varování
-```html
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-  Čeká
-</span>
-```
-
-### Status badge - Info
-```html
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-  Běží
-</span>
-```
-
-### Status indikátor (tečka)
-```html
-<!-- Úspěch -->
-<span class="inline-block w-3 h-3 rounded-full bg-green-500"></span>
-
-<!-- Chyba -->
-<span class="inline-block w-3 h-3 rounded-full bg-red-500"></span>
-
-<!-- Varování -->
-<span class="inline-block w-3 h-3 rounded-full bg-yellow-400"></span>
-```
-
----
-
-## Karty
-
-### Základní karta
-```html
-<a href="/path/to/item"
-   class="group bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all duration-200 overflow-hidden">
-  <div class="p-6 pb-4">
-    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
-      <span class="text-2xl">📁</span>
-    </div>
-    <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">Název karty</h3>
-  </div>
-  <div class="px-6 pb-6">
-    <p class="text-sm text-gray-600 leading-relaxed">Popis karty</p>
-  </div>
-  <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 group-hover:bg-blue-50 transition-colors">
-    <div class="flex items-center justify-between">
-      <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700 transition-colors">Otevřít</span>
-      <svg class="w-4 h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-      </svg>
-    </div>
-  </div>
-</a>
-```
-
-### Grid karet
-```html
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-  <!-- Karty -->
+<div class="card">
+  <ul class="list-rows">
+    <li><a class="list-row" href="/detail/1">
+      <span class="link-icon">{{ icon('file', 20) }}</span>
+      <span class="list-row-main">
+        <span class="list-row-title">Název záznamu</span>
+        <span class="list-row-meta">Doplňující informace</span>
+      </span>
+      {{ icon('chevron-right', 18) }}
+    </a></li>
+    <li class="list-row">
+      <span class="list-row-main">
+        <span class="list-row-title">Řádek s akcí</span>
+      </span>
+      <form method="post" action="/smazat/2">
+        <button class="btn btn-ghost btn-icon btn-sm" aria-label="Smazat">{{ icon('trash', 18) }}</button>
+      </form>
+    </li>
+  </ul>
 </div>
 ```
 
-### Karta vstupu v Nastavení (odkaz na podsekci)
-
-Používá se na stránce nastavení pro odkaz na podmodul. Pevná velikost **620×120 px**, název a šipka vpravo. Třídy z app.css: `.settings-grid`, `.settings-card`, `.settings-card-title`, `.settings-card-arrow`. Viz [TEMPLATE_LAYOUT.md](./TEMPLATE_LAYOUT.md).
-
-```html
-<div class="settings-grid page-content-box">
-  <a href="/settings/podmodul-1" class="settings-card">
-    <span class="settings-card-title">Podmodul 1</span>
-    <span class="settings-card-arrow">→</span>
-  </a>
-</div>
-```
+Na mobilu tabulky nad tři sloupce nefungují — použij seznam řádků nebo karty.
 
 ---
 
-## Modaly
+## Záložky uvnitř stránky
 
-### Základní modal struktura
 ```html
-<!-- Modal overlay -->
-<div id="modal-id" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-  <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-    <!-- Modal header -->
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-gray-900">Nadpis modalu</h3>
-      <button onclick="closeModal('modal-id')" class="text-gray-400 hover:text-gray-600">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
-    </div>
-    
-    <!-- Modal body -->
-    <div class="mb-4">
-      <!-- Obsah modalu -->
-    </div>
-    
-    <!-- Modal footer -->
-    <div class="flex justify-end space-x-3">
-      <button onclick="closeModal('modal-id')" 
-              class="px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
-        Zavřít
-      </button>
-      <button class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-        Uložit
-      </button>
-    </div>
-  </div>
-</div>
-
-<script>
-function openModal(modalId) {
-  document.getElementById(modalId).classList.remove('hidden');
-}
-
-function closeModal(modalId) {
-  document.getElementById(modalId).classList.add('hidden');
-}
-
-// Zavřít modal na ESC
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('[id$="-modal"]').forEach(modal => {
-      if (!modal.classList.contains('hidden')) {
-        modal.classList.add('hidden');
-      }
-    });
-  }
-});
-</script>
+<nav class="tabs" aria-label="Sekce záznamu">
+  <a href="?tab=prehled" class="tabs-item tabs-item--active">Přehled</a>
+  <a href="?tab=historie" class="tabs-item">Historie</a>
+</nav>
 ```
 
-### Modal s HTMX
-```html
-<div id="modal-id" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-  <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-    <div id="modal-content">
-      <!-- Obsah se načte přes HTMX -->
-    </div>
-  </div>
-</div>
-
-<script>
-function openModal(modalId, url) {
-  const modal = document.getElementById(modalId);
-  modal.classList.remove('hidden');
-  if (url) {
-    htmx.ajax('GET', url, {target: '#' + modalId + '-content', swap: 'innerHTML'});
-  }
-}
-</script>
-```
+Hlavní navigaci aplikace tímhle neřeš — na to je `.nav` a spodní lišta (TEMPLATE_MENU.md).
 
 ---
 
-## Loading stavy
+## Modal a toast
 
-### HTMX loading indikátor
+Obě komponenty jsou v `base.html` jednou a obsluhuje je `app.js`:
+
 ```html
-<span class="htmx-indicator animate-spin -ml-1 mr-3 h-4 w-4 text-white">
-  <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-  </svg>
-</span>
+<!-- potvrzení destruktivní akce: stačí atributy na formuláři -->
+<form method="post" action="/smazat"
+      data-confirm="Záznam bude trvale smazán i s přílohami."
+      data-confirm-title="Smazat záznam?"
+      data-confirm-ok="Smazat"
+      data-confirm-danger>
+  <button class="btn btn-danger" type="submit">Smazat</button>
+</form>
 ```
-
-### Loading text
-```html
-<div class="text-gray-600">Načítám...</div>
-```
-
-### HTMX auto-refresh
-```html
-<div hx-get="/path/to/status" 
-     hx-trigger="load, every 5s" 
-     hx-target="this" 
-     hx-swap="innerHTML">
-  <div class="text-gray-600">Načítám...</div>
-</div>
-```
-
----
-
-## Ikony
-
-### Přidat
-```html
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-</svg>
-```
-
-### Editovat
-```html
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-</svg>
-```
-
-### Smazat
-```html
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-</svg>
-```
-
-### Zpět
-```html
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-</svg>
-```
-
-### Historie/Čas
-```html
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-</svg>
-```
-
-### Zavřít
-```html
-<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-</svg>
-```
-
-### Informace
-```html
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-</svg>
-```
-
----
-
-## Notifikace
-
-### Globální notifikační systém
-
-V `base.html` je definovaný prvek `#notification-toast` a funkce `showNotification(message, type)`. Notifikace se zobrazí v pravém dolním rohu, po cca 4 s zmizí.
-
-**Umístění a styly (base.html):**
-
-- Kontejner: `id="notification-toast"`, třídy `fixed bottom-4 right-4 z-[100] max-w-sm hidden`, role `status`, `aria-live="polite"`.
-- Barvy podle typu: `success` → zelená (`bg-green-600`), `error` → červená (`bg-red-600`), výchozí `info` → modrá (`bg-blue-600`).
-
-**Použití:**
 
 ```javascript
-// Úspěšná notifikace
-showNotification('Operace byla úspěšně dokončena', 'success');
-
-// Chybová notifikace
-showNotification('Došlo k chybě při zpracování', 'error');
-
-// Info notifikace (výchozí)
-showNotification('Informační zpráva', 'info');
+// krátká zpětná vazba
+showNotification('Záznam byl uložen.', 'success');   // success | error | info
 ```
 
-Používejte `showNotification()` místo `alert()` pro konzistentní UX.
-
-### Použití v formuláři
+Vlastní modal (mimo potvrzování) skládej ze stejných tříd:
 
 ```html
-<form method="post" action="/path/to/submit" 
-      onsubmit="setTimeout(() => showNotification('Položka byla vytvořena', 'success'), 100)">
-  <!-- Formulář -->
-</form>
+<div class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Nadpis</div></div>
+    <div class="modal-body">Obsah</div>
+    <div class="modal-footer">
+      <button class="btn btn-outline">Zrušit</button>
+      <button class="btn btn-primary">Potvrdit</button>
+    </div>
+  </div>
+</div>
 ```
 
-### Použití s HTMX
-
-```html
-<form hx-post="/path/to/submit"
-      hx-target="#result"
-      hx-swap="innerHTML"
-      hx-on::after-request="showNotification('Operace dokončena', 'success')">
-  <!-- Formulář -->
-</form>
-```
+Nikdy `alert()`, `confirm()` ani `prompt()` — vypadají cize a nejdou stylovat.
 
 ---
 
-## Shrnutí
+## Průběh
 
-Tento dokument obsahuje všechny standardizované komponenty používané v projektu. Při vytváření nových aplikací vždy používejte tyto komponenty pro zajištění konzistentního vzhledu a chování.
+```html
+<div class="cluster">
+  <div class="progress" style="flex:1">
+    <div class="progress-bar" style="width: {{ done * 100 // total }}%"></div>
+  </div>
+  <span class="text-sm text-muted">{{ done }} / {{ total }}</span>
+</div>
+```
 
-**Klíčové principy:**
-- ✅ Vždy používejte standardní barvy a velikosti
-- ✅ Přidávejte `transition-colors` k interaktivním prvkům
-- ✅ Respektujte spacing a padding konvence
-- ✅ Používejte konzistentní ikony
-- ✅ Dodržujte přístupnost (aria-labels, focus stavy)
-- ✅ Používejte `showNotification()` místo `alert()`
-
+Šířku pruhu počítej v šabloně ze skutečných dat; je to jediný případ, kdy je inline styl
+v pořádku (hodnota je proměnná, ne vzhled).

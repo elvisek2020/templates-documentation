@@ -143,6 +143,8 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
 
 ## Povinné kontroly před dokončením
 
+- [ ] Verze v `app/static/version.json` zvýšena (jinak prohlížeče drží staré CSS/JS)
+
 - [ ] Workflow obsahuje GHCR login + buildx
 - [ ] Actions majory Node-24-kompatibilní (checkout@v7, setup-buildx@v4, login@v4, metadata@v6, build-push@v7)
 - [ ] Image name konzistentní napříč workflow, docker-compose.yml a README.md

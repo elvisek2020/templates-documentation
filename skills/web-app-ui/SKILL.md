@@ -1,40 +1,76 @@
 ---
 name: web-app-ui
-description: Standardizované UI webových aplikací — layout stránek, komponenty (tlačítka, formuláře, tabulky, karty, modaly), hlavní menu, zápatí a styly z app.css. Použij při vytváření nebo úpravě jakékoli stránky, Jinja2/HTML šablony, komponenty, formuláře, tabulky, menu, footeru nebo CSS ve webové aplikaci, aby vzhled a chování odpovídaly zavedenému design systému.
+description: Standardizované UI webových aplikací — design systém app.css (dvě palety, světlý i tmavý režim), layout stránek, komponenty (tlačítka, formuláře, tabulky, karty, modaly, prázdné stavy), hlavní menu včetně mobilní lišty a zápatí. Použij při vytváření nebo úpravě jakékoli stránky, Jinja2/HTML šablony, komponenty, formuláře, tabulky, menu, zápatí nebo CSS ve webové aplikaci, aby vzhled a chování odpovídaly zavedenému design systému.
 ---
 
 # UI webové aplikace
 
-Všechny stránky používají jednotný design systém postavený na lokálním stylesheetu `app.css`. Nikdy nevymýšlej vlastní styly ani třídy — vždy použij existující třídy z [references/reference_app.css](references/reference_app.css) (`.card`, `.btn`, `.form-group`, `.input`, `.page-header`, CSS proměnné v `:root`).
+Všechny stránky stojí na jediném lokálním stylesheetu `app/static/css/app.css`. Nevymýšlej
+vlastní třídy ani inline styly — používej třídy z [references/reference_app.css](references/reference_app.css).
+Když komponenta chybí, přidej ji **do app.css** (a do náhledové stránky), ne do šablony.
+
+## Založení aplikace: paleta + základ
+
+Design systém je rozdělený na paletu (barvy, písma, stíny) a základ (struktura a komponenty).
+Při zakládání projektu vyber paletu a spoj soubory do `app.css`:
+
+```bash
+# firemní / interní nástroj
+cat theme_corporate.css reference_app.css > app/static/css/app.css
+
+# osobní / domácí aplikace
+cat theme_personal.css  reference_app.css > app/static/css/app.css
+```
+
+| Paleta | Vzhled | Kdy |
+|--------|--------|-----|
+| `theme_corporate.css` | neutrální povrchy, modrý akcent, systémová písma | evidence, administrace, interní nástroje, reporty |
+| `theme_personal.css` | teplý papír, terakotový akcent, patkové nadpisy (Fraunces) | receptáře, deníky, rodinné a hobby aplikace |
+
+Vlastní barva aplikace = změna tří tokenů (`--color-primary`, `--color-primary-hover`,
+`--color-primary-soft`) ve světlé i obou tmavých variantách. Nic jiného se nepřebarvuje.
 
 ## Kterou referenci číst
 
 | Úkol | Reference |
 |------|-----------|
-| Nová stránka, struktura layoutu, hlavička, sekce, dvousloupcový layout, prázdný stav | [references/TEMPLATE_LAYOUT.md](references/TEMPLATE_LAYOUT.md) |
-| Konkrétní komponenta — tlačítka, formuláře, tabulky, badge, karty, modaly, loading, ikony, notifikace | [references/TEMPLATE_COMPONENTS.md](references/TEMPLATE_COMPONENTS.md) |
-| Přidání nebo úprava položky v hlavním menu, mobilní navigace, aktivní stav záložky | [references/TEMPLATE_MENU.md](references/TEMPLATE_MENU.md) |
-| Úprava nebo rozšíření zápatí, verze z `version.json` | [references/TEMPLATE_FOOTER.md](references/TEMPLATE_FOOTER.md) |
-| Dostupné CSS třídy a proměnné | [references/reference_app.css](references/reference_app.css) |
-
-Pokud projekt ještě nemá `app.css`, zkopíruj `references/reference_app.css` do `app/static/css/app.css` a načti ho v `base.html`.
+| Nová stránka, `base.html`, hlavička stránky, sekce, dvousloupcový layout, master–detail, prázdný stav | [references/TEMPLATE_LAYOUT.md](references/TEMPLATE_LAYOUT.md) |
+| Konkrétní komponenta — tlačítka, formuláře, tabulky, seznamy, badge, modal, toast, ikony | [references/TEMPLATE_COMPONENTS.md](references/TEMPLATE_COMPONENTS.md) |
+| Hlavní menu, mobilní spodní lišta, panel „Více“, banner probíhající akce, aktivní záložka | [references/TEMPLATE_MENU.md](references/TEMPLATE_MENU.md) |
+| Zápatí, verze aplikace, přepínač motivu a šířky stránky | [references/TEMPLATE_FOOTER.md](references/TEMPLATE_FOOTER.md) |
+| Dostupné třídy a tokeny | [references/reference_app.css](references/reference_app.css) |
+| Vizuální kontrola všech komponent | [references/preview.html](references/preview.html) |
 
 ## Klíčová pravidla
 
-- Hlavní obsah patří do kontejneru `.container` z `base.html`.
-- Každá stránka má hlavičku `.page-header` s `h1` (`.page-title`) a volitelným popisem.
-- Sekce obsahu jsou v boxech — třída `.card` (příp. `.page-content-box`).
-- Tlačítka: `.btn` + varianta (`.btn-primary`, `.btn-outline`, …). Žádné vlastní styly tlačítek.
-- Zpětná vazba uživateli přes `showNotification()`, nikdy `alert()`.
-- Záložky v menu mají 150×40 px; aktivní stav řídí backend přes `current_tab`.
-- Destruktivní akce vyžadují potvrzení; formuláře mají validaci.
-- Sémantické HTML, aria-labels, keyboard navigation.
-- Dynamický obsah přes HTMX, minimum vlastního JavaScriptu.
+- **Barvy jen přes tokeny.** V šablonách ani v aplikační části app.css nesmí být `#hex`
+  ani `rgb()` — vždy `var(--color-…)`. Jinak se rozbije tmavý režim.
+- **Tmavý režim je povinný.** Každá nová komponenta musí fungovat ve světlém i tmavém;
+  ověř v `preview.html` přepínačem v zápatí.
+- **Žádný Tailwind ani utility framework.** Jen třídy z app.css a pár utilit na konci souboru.
+- Obsah stránky patří do `.container`; každá stránka má `.page-header` s `h1.page-title`.
+- Sekce obsahu jsou `.card`. Nepoužívej `div` se stíny „nastylované ručně“.
+- Tlačítka: `.btn` + varianta. Dotykové cíle minimálně 44 px (drží `--btn-height`).
+- Hlavní menu: nejvýš čtyři záložky na desktopu, spodní lišta na mobilu, aktivní stav z `current_tab`.
+- Destruktivní akce se potvrzují modalem (`data-confirm`), ne `confirm()`.
+  Zpětná vazba přes `showNotification()`, ne `alert()`.
+- Sémantické HTML, `aria-label` u ikonových tlačítek, viditelný focus (`:focus-visible`).
+- Dynamický obsah přes HTMX, vlastní JavaScript co nejmíň.
+- **Po změně app.css zvyš verzi** v `app/static/version.json` — CSS i JS se načítají
+  s `?v=`, jinak prohlížeč drží starou verzi.
+
+## Související skilly
+
+- Chování stránky (toasty, potvrzovací modal, přepínač motivu, HTMX vzory, `app.js`) → `web-app-interactions`
+- Architektura, moduly, šablonovací vrstva, filtry → `web-app-stack`
+- Přihlašovací stránky a správa PassKey → `web-app-auth`
+- Fotky, galerie, náhledy → `web-app-media`
 
 ## Checklist před dokončením
 
-- [ ] Použity pouze standardní třídy z app.css (žádné nové ad-hoc styly)
-- [ ] Hlavička stránky má správnou strukturu (`.page-header`, `.page-title`)
-- [ ] Sekce používají `.card`
-- [ ] Notifikace přes `showNotification()`
-- [ ] Responzivní chování odpovídá vzorům v TEMPLATE_LAYOUT.md
+- [ ] Použity jen třídy z app.css, žádné inline styly s barvami
+- [ ] Stránka má `.page-header` s `h1.page-title`
+- [ ] Sekce v `.card`, akce v `.page-actions` nebo `.card-footer`
+- [ ] Ikonová tlačítka mají `aria-label`
+- [ ] Vyzkoušeno ve světlém i tmavém režimu a na šířce 375 px
+- [ ] Po zásahu do app.css doplněna komponenta do `preview.html` a zvýšena verze

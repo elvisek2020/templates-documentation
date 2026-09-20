@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Design systém — náhled komponent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  Kontrolní stránka design systému. Otevři ji v prohlížeči a projdi všechny
+  komponenty ve všech čtyřech kombinacích (firemní/osobní × světlý/tmavý).
+  Po úpravě reference_app.css se sem přidá i nová komponenta.
+-->
+<link rel="stylesheet" href="theme_corporate.css" id="palette-corporate">
+<link rel="stylesheet" href="theme_personal.css" id="palette-personal" disabled>
+<link rel="stylesheet" href="reference_app.css">
+</head>
+<body class="has-tabbar">
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <a href="#" class="logo">
+        <span class="logo-mark">
+          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+        </span>
+        <span>Design systém</span>
+      </a>
+      <nav class="nav" aria-label="Hlavní navigace">
+        <a href="#" class="nav-item nav-item--active">Komponenty</a>
+        <a href="#formulare" class="nav-item">Formuláře</a>
+        <a href="#stavy" class="nav-item">Stavy</a>
+      </nav>
+    </div>
+    <div class="header-right">
+      <span class="user-chip header-desktop-only">nahled@example.com</span>
+      <button type="button" class="btn btn-ghost btn-icon" aria-label="Nastavení">
+        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 0 0-1.7-1L14.5 3h-5l-.3 2.9a7 7 0 0 0-1.7 1l-2.4-1-2 3.5L5 11a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a7 7 0 0 0 1.7 1l.4 3h5l.3-2.9a7 7 0 0 0 1.7-1l2.4 1 2-3.5-2-1.6c.1-.3.1-.6.1-1z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="action-banner">
+  <a href="#">
+    <span class="pulse-dot" aria-hidden="true"></span>
+    <span class="action-banner-title">Banner probíhající akce — např. <strong>rozpracovaný záznam</strong></span>
+    <span class="action-banner-cta">Pokračovat →</span>
+  </a>
+</div>
+
+<main class="main-content">
+  <div class="container">
+
+    <div class="page-header">
+      <div class="page-header-text">
+        <h1 class="page-title">Komponenty</h1>
+        <p class="page-description">Kontrolní stránka — projdi ji ve všech čtyřech kombinacích palety a motivu.</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-outline">Vedlejší akce</button>
+        <button class="btn btn-primary">Hlavní akce</button>
+      </div>
+    </div>
+
+    <!-- Záložky uvnitř stránky + mřížka karet -->
+    <nav class="tabs" aria-label="Záložky sekce">
+      <a href="#" class="tabs-item tabs-item--active">Přehled</a>
+      <a href="#" class="tabs-item">Podrobnosti</a>
+      <a href="#" class="tabs-item">Historie</a>
+    </nav>
+
+    <div class="card-grid mb-5">
+      <article class="card"><div class="card-body">
+        <h3 class="card-title">Dlaždice</h3>
+        <p class="text-sm text-muted mt-2">Mřížka karet se sama zalomí podle šířky.</p>
+      </div></article>
+      <article class="card"><div class="card-body">
+        <h3 class="card-title">Druhá dlaždice</h3>
+        <p class="text-sm text-muted mt-2">Na mobilu jsou karty pod sebou.</p>
+      </div></article>
+      <article class="card"><div class="card-body">
+        <h3 class="card-title">Třetí dlaždice</h3>
+        <p class="text-sm text-muted mt-2">Vhodné pro rozcestníky a přehledy.</p>
+      </div></article>
+    </div>
+
+    <!-- Tlačítka -->
+    <section class="card">
+      <div class="card-header"><h2 class="card-title">Tlačítka</h2></div>
+      <div class="card-body">
+        <div class="cluster mb-4">
+          <button class="btn btn-primary">Primární</button>
+          <button class="btn btn-secondary">Sekundární</button>
+          <button class="btn btn-outline">Outline</button>
+          <button class="btn btn-ghost">Ghost</button>
+          <button class="btn btn-danger">Smazat</button>
+          <button class="btn btn-danger-ghost">Smazat (ghost)</button>
+          <button class="btn btn-primary" disabled>Neaktivní</button>
+        </div>
+        <div class="cluster">
+          <button class="btn btn-primary btn-lg">Velké</button>
+          <button class="btn btn-outline">Normální</button>
+          <button class="btn btn-outline btn-sm">Malé</button>
+          <button class="btn btn-ghost btn-icon" aria-label="Ikona">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <details class="dropdown">
+            <summary class="btn btn-outline">Rozbalovací menu</summary>
+            <div class="dropdown-menu">
+              <a class="menu-item" href="#">První volba</a>
+              <a class="menu-item" href="#">Druhá volba</a>
+              <div class="menu-divider"></div>
+              <button class="menu-item menu-item--danger" type="button">Smazat</button>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Formuláře -->
+    <section class="card mt-5" id="formulare">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Formuláře</h2>
+          <p class="card-subtitle">Výška polí i tlačítek je 44 px, na mobilu se dobře trefují prstem.</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="f1">Textové pole</label>
+            <input class="input" id="f1" placeholder="Zadejte hodnotu">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f2">Výběr <span class="optional">(volitelné)</span></label>
+            <select class="input" id="f2"><option>První volba</option><option>Druhá volba</option></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f3">Víceřádkové pole</label>
+          <textarea class="input" id="f3" rows="3" placeholder="Delší text…"></textarea>
+          <p class="form-hint">Nápověda pod polem vysvětluje, co se od uživatele čeká.</p>
+        </div>
+        <label class="search-field mb-4">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input class="input" type="search" placeholder="Hledat…">
+        </label>
+        <label class="check-row"><input type="checkbox" checked><span>Zaškrtávací pole</span></label>
+        <div class="choice-list mt-4">
+          <label class="choice-card">
+            <input type="checkbox" checked>
+            <span class="choice-card-text">
+              <span class="choice-card-title">Volba jako karta</span>
+              <span class="choice-card-meta">Doplňující popis volby</span>
+            </span>
+          </label>
+          <label class="choice-card">
+            <input type="checkbox">
+            <span class="choice-card-text">
+              <span class="choice-card-title">Druhá volba</span>
+            </span>
+          </label>
+        </div>
+        <div class="cluster mt-5">
+          <div class="stepper">
+            <button type="button">−</button>
+            <input type="number" value="2" aria-label="Počet">
+            <button type="button">+</button>
+          </div>
+          <div class="chips">
+            <button class="chip chip--active" type="button">1×</button>
+            <button class="chip" type="button">2×</button>
+            <button class="chip" type="button">3×</button>
+          </div>
+        </div>
+        <label class="file-drop mt-5">
+          <input type="file">
+          <span class="file-drop-icon">
+            <svg class="icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5M12 3v12"/></svg>
+          </span>
+          <span class="file-drop-title">Přetáhněte soubory sem, nebo klikněte</span>
+          <span class="file-drop-hint">Podporované formáty a limity velikosti</span>
+        </label>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-primary">Uložit</button>
+        <button class="btn btn-ghost">Zrušit</button>
+      </div>
+    </section>
+
+    <!-- Stavy -->
+    <section class="mt-5" id="stavy">
+      <h2 class="section-title">Stavové prvky</h2>
+      <div class="alert alert--success"><div class="alert-body">Úspěch — akce proběhla.</div></div>
+      <div class="alert alert--info"><div class="alert-body">Informace — doplňující kontext k obsahu.</div></div>
+      <div class="alert alert--warn"><div class="alert-body">Upozornění — něco vyžaduje pozornost.</div></div>
+      <div class="alert alert--error"><div class="alert-body">Chyba — akce se nezdařila.</div></div>
+
+      <div class="cluster mt-4 mb-5">
+        <span class="badge">Neutrální</span>
+        <span class="badge badge--accent">Akcentní</span>
+        <span class="badge badge--success">Hotovo</span>
+        <span class="badge badge--warn">Ke kontrole</span>
+        <span class="badge badge--error">Chyba</span>
+        <span class="tag">štítek</span>
+        <span class="tag">druhý štítek</span>
+      </div>
+
+      <div class="cluster">
+        <div class="progress" style="flex:1"><div class="progress-bar" style="width:62%"></div></div>
+        <span class="text-sm text-muted">5 / 8</span>
+      </div>
+    </section>
+
+    <!-- Data -->
+    <section class="card mt-5">
+      <div class="card-header"><h2 class="card-title">Tabulka a seznam</h2></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Název</th><th>Stav</th><th>Datum</th></tr></thead>
+          <tbody>
+            <tr><td>První záznam</td><td><span class="badge badge--success">Aktivní</span></td><td>20. 9. 2026</td></tr>
+            <tr><td>Druhý záznam</td><td><span class="badge badge--warn">Čeká</span></td><td>19. 9. 2026</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="list-rows">
+        <li class="list-row">
+          <span class="link-icon">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg>
+          </span>
+          <span class="list-row-main">
+            <span class="list-row-title">Řádek seznamu</span>
+            <span class="list-row-meta">Doplňující informace</span>
+          </span>
+          <button class="btn btn-outline btn-sm">Otevřít</button>
+        </li>
+        <li class="list-row">
+          <span class="link-icon">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+          </span>
+          <span class="list-row-main">
+            <span class="list-row-title">Další řádek</span>
+            <span class="list-row-meta">Doplňující informace</span>
+          </span>
+          <button class="btn btn-ghost btn-icon btn-sm" aria-label="Smazat">
+            <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          </button>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Prázdný stav -->
+    <section class="card mt-5">
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <svg class="icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <h2 class="empty-state-title">Zatím tu nic není</h2>
+        <p class="empty-state-text">Prázdný stav vysvětlí, co se stane, a nabídne první krok.</p>
+        <div class="cluster"><button class="btn btn-primary">Přidat první záznam</button></div>
+      </div>
+    </section>
+
+    <!-- Dvousloupcová stránka -->
+    <section class="mt-5">
+      <h2 class="section-title">Dvousloupcová stránka</h2>
+      <div class="detail-layout">
+        <aside class="card detail-side"><div class="card-body">
+          <h3 class="card-title">Postranní panel</h3>
+          <p class="text-sm text-muted mt-2">Na širokém displeji zůstává při scrollu na místě.</p>
+        </div></aside>
+        <div class="stack">
+          <section class="card"><div class="card-body">Hlavní obsah stránky.</div></section>
+          <section class="card"><div class="card-body">Další sekce obsahu.</div></section>
+        </div>
+      </div>
+    </section>
+
+    <!-- Master–detail -->
+    <section class="mt-5">
+      <h2 class="section-title">Vzor master–detail</h2>
+      <div class="split-layout has-selection">
+        <div class="card split-list">
+          <div class="split-search">
+            <label class="search-field">
+              <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input class="input" type="search" placeholder="Hledat v seznamu…">
+            </label>
+          </div>
+          <div class="split-items">
+            <a class="split-item is-selected" href="#">
+              <span class="split-item-main"><span class="split-item-name">Vybraná položka</span><span class="split-item-meta">Kategorie</span></span>
+            </a>
+            <a class="split-item" href="#">
+              <span class="split-item-main"><span class="split-item-name">Další položka</span><span class="split-item-meta">Kategorie</span></span>
+            </a>
+            <a class="split-item" href="#">
+              <span class="split-item-main"><span class="split-item-name">Třetí položka</span><span class="split-item-meta">Kategorie</span></span>
+            </a>
+          </div>
+        </div>
+        <div class="split-detail">
+          <div class="split-detail-head">
+            <div>
+              <h3 class="split-detail-title">Vybraná položka</h3>
+              <p class="text-sm text-muted">Detail se překresluje bez načtení celé stránky.</p>
+            </div>
+            <button class="btn btn-outline btn-sm">Akce</button>
+          </div>
+          <div class="split-detail-cols">
+            <div class="card"><div class="card-body">
+              <div class="form-group"><label class="form-label" for="d1">Název</label><input class="input" id="d1" value="Vybraná položka"></div>
+            </div></div>
+            <div class="card"><div class="card-body">
+              <p class="text-sm text-muted">Druhý sloupec detailu.</p>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="page-actions">
+      <button class="btn btn-primary btn-lg">Uložit</button>
+      <button class="btn btn-ghost btn-lg">Zrušit</button>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <p>Design systém · náhled komponent</p>
+    <div class="theme-switch" role="group" aria-label="Motiv stránky">
+      <button type="button" class="theme-option is-active" data-theme-option="auto"><span>Systém</span></button>
+      <button type="button" class="theme-option" data-theme-option="light"><span>Světlý</span></button>
+      <button type="button" class="theme-option" data-theme-option="dark"><span>Tmavý</span></button>
+    </div>
+    <div class="theme-switch" role="group" aria-label="Paleta">
+      <button type="button" class="theme-option is-active" data-palette="corporate"><span>Firemní</span></button>
+      <button type="button" class="theme-option" data-palette="personal"><span>Osobní</span></button>
+    </div>
+  </div>
+</footer>
+
+<nav class="tabbar" aria-label="Hlavní navigace">
+  <a href="#" class="tabbar-item is-active">Komponenty</a>
+  <a href="#formulare" class="tabbar-item">Formuláře</a>
+  <a href="#stavy" class="tabbar-item">Stavy</a>
+  <button type="button" class="tabbar-item">Více</button>
+</nav>
+
+<script>
+// Přepínače jen pro tuto náhledovou stránku — v aplikaci je řeší app.js.
+document.querySelectorAll('[data-theme-option]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var mode = b.dataset.themeOption;
+    if (mode === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', mode);
+    b.parentElement.querySelectorAll('.theme-option').forEach(function (x) {
+      x.classList.toggle('is-active', x === b);
+    });
+  });
+});
+document.querySelectorAll('[data-palette]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.getElementById('palette-corporate').disabled = b.dataset.palette !== 'corporate';
+    document.getElementById('palette-personal').disabled = b.dataset.palette !== 'personal';
+    b.parentElement.querySelectorAll('.theme-option').forEach(function (x) {
+      x.classList.toggle('is-active', x === b);
+    });
+  });
+});
+</script>
+</body>
+</html>

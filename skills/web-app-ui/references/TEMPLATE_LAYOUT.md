@@ -1,416 +1,382 @@
-# Šablona layoutu - Univerzální struktura stránek
+# Layout stránek
 
-Tento dokument popisuje standardizovanou strukturu layoutu a vzory stránek pro webové aplikace. Použijte tyto vzory pro zajištění konzistentního vzhledu a chování napříč všemi aplikacemi.
+Struktura `base.html` a vzory jednotlivých stránek. Styly jsou výhradně z `app.css`
+(žádný Tailwind ani jiný utility framework).
 
-**Styling:** Aplikace používá **lokální CSS** – soubor `app/static/css/app.css`. Nepoužívá se Tailwind ani jiný utility framework. V příkladech používejte třídy z app.css: `.container`, `.card`, `.card-header`, `.card-body`, `.page-header`, `.page-title`, `.btn`, `.btn-primary`, `.btn-outline` atd.
+## Obsah
 
-## 📋 Obsah
-
-1. [Základní struktura stránky](#základní-struktura-stránky)
-2. [Hlavička stránky](#hlavička-stránky)
-3. [Sekce a boxy](#sekce-a-boxy)
-4. [Layout vzory](#layout-vzory)
-5. [Navigace](#navigace)
-6. [Auth layout](#auth-layout-přihlašovací-stránky)
-7. [Prázdný stav](#prázdný-stav)
-8. [Best practices](#best-practices)
+1. [Kostra base.html](#kostra-basehtml)
+2. [Minimální stránka](#minimální-stránka)
+3. [Hlavička stránky](#hlavička-stránky)
+4. [Sekce a karty](#sekce-a-karty)
+5. [Rozvržení obsahu](#rozvržení-obsahu)
+6. [Master–detail](#masterdetail)
+7. [Akce na konci stránky](#akce-na-konci-stránky)
+8. [Prázdný stav](#prázdný-stav)
+9. [Přihlašovací stránky](#přihlašovací-stránky)
+10. [Responzivita](#responzivita)
 
 ---
 
-## Základní struktura stránky
+## Kostra base.html
 
-### Kontejner obsahu v base.html
-
-V `base.html` je hlavní obsah obalen kontejnerem (třída `.container` z app.css):
+Jedna šablona drží hlavičku, menu, mobilní lištu, zápatí a globální prvky (toast, modal).
+Stránky plní jen `{% block content %}`.
 
 ```html
-<main class="container">
-    {% block content %}{% endblock %}
-</main>
+{% from "_icons.html" import icon %}
+{%- set show_chrome = current_user and not hide_chrome -%}
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>{% block title %}{{ app_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/app.css?v={{ app_version }}">
+    <script>
+        // Zvolený motiv nastavit ještě před vykreslením (jinak stránka blikne).
+        try {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+    </script>
+    <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+    <script src="/static/js/app.js?v={{ app_version }}" defer></script>
+    {% block head %}{% endblock %}
+</head>
+<body class="{% if show_chrome %}has-tabbar{% endif %} {% block body_class %}{% endblock %}">
+    <script>
+        try {
+            if (localStorage.getItem('layout-wide') === '1') document.body.classList.add('layout-wide');
+        } catch (e) {}
+    </script>
+
+    {% if show_chrome %}
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-left">
+                <a href="/" class="logo" title="{{ app_name }}">
+                    <span class="logo-mark">{{ icon('home', 20) }}</span>
+                    <span>{{ app_name }}</span>
+                </a>
+                <nav class="nav" aria-label="Hlavní navigace">
+                    {# položky viz TEMPLATE_MENU.md #}
+                </nav>
+            </div>
+            <div class="header-right">
+                <span class="user-chip header-desktop-only">{{ current_user.email }}</span>
+                <a href="/settings" class="btn btn-ghost btn-icon header-desktop-only" aria-label="Nastavení">{{ icon('settings') }}</a>
+            </div>
+        </div>
+    </header>
+
+    {# volitelně: banner probíhající akce — viz TEMPLATE_MENU.md #}
+    {# mobilní spodní lišta a panel „Více“ — viz TEMPLATE_MENU.md #}
+    {% endif %}
+
+    <main class="main-content {% block main_class %}{% endblock %}">
+        {% if show_chrome %}<div class="container {% block container_class %}{% endblock %}">{% endif %}
+            {% block content %}{% endblock %}
+        {% if show_chrome %}</div>{% endif %}
+    </main>
+
+    {% if show_chrome %}
+    <footer class="footer">
+        {# verze + přepínač motivu a šířky — viz TEMPLATE_FOOTER.md #}
+    </footer>
+    {% endif %}
+
+    {# globální prvky obsluhované app.js — viz skill web-app-interactions #}
+    <div id="notification-toast" class="toast-container" aria-live="polite"></div>
+    <div id="confirm-overlay" class="modal-overlay" role="dialog" aria-modal="true" style="display:none">…</div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
 ```
 
-Stránky tedy vkládají obsah do bloku `content`; šířka a padding jsou dány `main` / `.container`.
+**Proč tak:**
 
-### Minimální template
+- `show_chrome` vypne hlavičku i zápatí na přihlašovací stránce a ve fokusovaných režimech
+  (`hide_chrome=True` z routeru).
+- `has-tabbar` přidá dole odsazení, aby mobilní lišta nepřekryla obsah.
+- Inline skripty v `<head>` a na začátku `<body>` nastaví motiv a šířku dřív, než se stránka
+  vykreslí. Bez nich stránka při načtení blikne.
+- `?v={{ app_version }}` u CSS a JS řeší cache. Verze se čte z `app/static/version.json`
+  při startu aplikace — po změně statických souborů ji musíš zvýšit.
+
+---
+
+## Minimální stránka
 
 ```html
 {% extends "base.html" %}
-{% block title %}{{ page_title or 'Název stránky' }}{% endblock %}
+{% from "_icons.html" import icon %}
+{% block title %}Název stránky — {{ app_name }}{% endblock %}
 
 {% block content %}
 <div class="page-header">
-  <div>
-    <h1 class="page-title">{{ page_title }}</h1>
-    {% if page_description %}
-    <p class="page-subtitle">{{ page_description }}</p>
-    {% endif %}
+  <div class="page-header-text">
+    <h1 class="page-title">Název stránky</h1>
+    <p class="page-description">Jedna věta, co na stránce uživatel udělá.</p>
   </div>
-  <div style="display: flex; gap: 0.75rem;">
-    <!-- Navigační tlačítka: .btn .btn-primary atd. -->
+  <div class="page-header-actions">
+    <a href="/neco/nove" class="btn btn-primary">{{ icon('plus', 18) }}Nový záznam</a>
   </div>
 </div>
 
-<div class="card">
-  <div class="card-header">
-    <h2 class="card-title">Nadpis sekce</h2>
-  </div>
+<section class="card">
+  <div class="card-header"><h2 class="card-title">Sekce</h2></div>
   <div class="card-body">
-    <!-- Obsah sekce -->
+    …
   </div>
-</div>
+</section>
 {% endblock %}
 ```
-
-**Poznámka:** `page_description` je volitelný – některé stránky mají jen nadpis. Třídy `.page-header`, `.page-title`, `.page-subtitle`, `.card`, `.card-header`, `.card-body` jsou definované v app.css.
-
-### Kontejner obsahu
-
-Hlavní obsah stránky je uvnitř `<main class="container">` v base.html. V bloku `content` používejte sekce s třídou `.card` pro boxy; šířku řeší kontejner v base.html.
 
 ---
 
 ## Hlavička stránky
 
-### Základní hlavička
+```html
+<!-- jen nadpis -->
+<div class="page-header">
+  <div class="page-header-text">
+    <h1 class="page-title">Nastavení</h1>
+  </div>
+</div>
+
+<!-- nadpis, popis a akce vpravo -->
+<div class="page-header">
+  <div class="page-header-text">
+    <h1 class="page-title">Zakázky</h1>
+    <p class="page-description">{{ items|length }} otevřených zakázek</p>
+  </div>
+  <div class="page-header-actions">
+    <a href="/export" class="btn btn-outline btn-sm">{{ icon('download', 16) }}Export</a>
+    <a href="/zakazky/nova" class="btn btn-primary">{{ icon('plus', 18) }}Nová zakázka</a>
+  </div>
+</div>
+
+<!-- odkaz zpět nad hlavičkou (detail, editace) -->
+<a href="/zakazky" class="back-link">{{ icon('arrow-left', 16) }}Zakázky</a>
+```
+
+Akce v hlavičce jsou ty, které se týkají celé stránky. Akce nad jedním záznamem patří
+k záznamu, ne sem.
+
+---
+
+## Sekce a karty
 
 ```html
-<div class="page-header">
-  <div>
-    <h1 class="page-title">{{ page_title }}</h1>
-    {% if page_description %}
-    <p class="page-subtitle">{{ page_description }}</p>
+<!-- karta s hlavičkou a patičkou -->
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Fakturační údaje</h2>
+      <p class="card-subtitle">Zobrazí se na faktuře.</p>
+    </div>
+    <a href="#" class="btn btn-ghost btn-icon btn-sm" aria-label="Upravit">{{ icon('edit', 16) }}</a>
+  </div>
+  <div class="card-body">…</div>
+  <div class="card-footer">
+    <button class="btn btn-primary">Uložit</button>
+    <a href="/zpet" class="btn btn-ghost">Zrušit</a>
+  </div>
+</section>
+
+<!-- sekce bez karty (nadpis nad obsahem) -->
+<section class="section">
+  <h2 class="section-title">Poslední aktivita <span class="section-count">(12)</span></h2>
+  …
+</section>
+```
+
+Karty pod sebou oddělíš `.stack` / `.stack-lg` na rodiči, ne ručními `margin`:
+
+```html
+<div class="stack-lg">
+  <section class="card">…</section>
+  <section class="card">…</section>
+</div>
+```
+
+---
+
+## Rozvržení obsahu
+
+```html
+<!-- mřížka karet (rozcestník, dlaždice) -->
+<div class="card-grid">
+  <article class="card">…</article>
+  <article class="card">…</article>
+</div>
+
+<!-- dva sloupce s postranním panelem (mřížka .detail-layout níže) -->
+<div class="detail-layout">
+  <aside class="card detail-side">…</aside>
+  <div class="stack">…</div>
+</div>
+
+<!-- řádek prvků, který se sám zalomí -->
+<div class="cluster">
+  <button class="btn btn-outline btn-sm">Filtr</button>
+  <span class="badge">Stav</span>
+</div>
+```
+
+`.detail-layout` je hotová mřížka 4 : 7, která se pod 900 px složí pod sebe.
+`.detail-side` drží postranní panel při scrollu na místě (na mobilu se chování vypne).
+
+Jiný poměr sloupců si uprav v aplikační části app.css:
+
+```css
+.detail-layout--wide-side {
+    grid-template-columns: minmax(320px, 1fr) minmax(0, 1fr);
+}
+```
+
+---
+
+## Master–detail
+
+Seznam vlevo, detail vpravo, na mobilu se střídají. Detail překresluje HTMX (viz
+`web-app-interactions`), bez JavaScriptu funguje jako obyčejné odkazy.
+
+```html
+<div class="split-layout {% if selected %}has-selection{% endif %}">
+  <div class="card split-list">
+    <div class="split-search">
+      <label class="search-field">
+        <span class="visually-hidden">Hledat</span>
+        {{ icon('search', 18) }}
+        <input class="input" type="search" name="q" value="{{ q }}" placeholder="Hledat…">
+      </label>
+    </div>
+
+    <div id="item-list" class="split-items">
+      {% for item in items %}
+      <a class="split-item {% if selected and selected.id == item.id %}is-selected{% endif %}"
+         href="/polozky/{{ item.id }}"
+         hx-get="/polozky/{{ item.id }}" hx-target="#item-detail" hx-swap="outerHTML" hx-push-url="true">
+        <span class="split-item-main">
+          <span class="split-item-name">{{ item.name }}</span>
+          <span class="split-item-meta">{{ item.category }}</span>
+        </span>
+        {{ icon('chevron-right', 16) }}
+      </a>
+      {% endfor %}
+    </div>
+
+    <form method="post" action="/polozky/nova" class="split-add">…</form>
+  </div>
+
+  <div id="item-detail" class="split-detail">
+    {% if selected %}
+    <div class="split-detail-head">
+      <a href="/polozky" class="back-link split-back">{{ icon('arrow-left', 16) }}Zpět na seznam</a>
+      <div>
+        <h2 class="split-detail-title">{{ selected.name }}</h2>
+        <p class="text-sm text-muted">Doplňující údaj</p>
+      </div>
+      <button class="btn btn-outline btn-sm">Akce</button>
+    </div>
+    <div class="split-detail-cols">
+      <section class="card">…</section>
+      <section class="card">…</section>
+    </div>
+    {% else %}
+    <div class="card">
+      {# prázdný stav „Vyberte položku“ #}
+    </div>
     {% endif %}
   </div>
 </div>
 ```
 
-### Hlavička pouze s nadpisem (bez popisu)
-
-Na stránkách jako Přehled nebo Nastavení stačí jeden řádek:
-
-```html
-<div class="page-header">
-  <h1 class="page-title">{{ page_title }}</h1>
-</div>
-```
-
-### Hlavička s navigačními tlačítky
-
-```html
-<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-  <div>
-    <h1 class="page-title">{{ page_title }}</h1>
-    <p class="page-subtitle">{{ page_description }}</p>
-  </div>
-  <div style="display: flex; gap: 0.75rem;">
-    <a href="/path/to/action" class="btn btn-primary">Nová akce</a>
-    <a href="/path/to/history" class="btn btn-secondary">Historie</a>
-  </div>
-  </div>
-</div>
-```
-
-### Hlavička s tlačítkem zpět
-
-```html
-<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
-  <div>
-    <h1 class="page-title">{{ page_title }}</h1>
-    <p class="page-subtitle">{{ page_description }}</p>
-  </div>
-  <a href="/path/to/back" class="btn btn-outline btn-sm">← Zpět</a>
-</div>
-```
+`.split-back` je vidět jen na úzkém displeji, kde se seznam skrývá.
 
 ---
 
-## Sekce a boxy
+## Akce na konci stránky
 
-### Standardní box
-
-**Základní struktura pro všechny sekce** – použijte třídu `.card` z app.css:
+U delších formulářů dej tlačítka natvrdo na konec stránky:
 
 ```html
-<div class="card">
-  <h2 class="card-title">Nadpis sekce</h2>
-  <div class="card-body">
-    <!-- Obsah sekce -->
-  </div>
+<div class="page-actions">
+  <button type="submit" class="btn btn-primary btn-lg">{{ icon('check', 20) }}Uložit</button>
+  <a href="/zpet" class="btn btn-ghost btn-lg">Zrušit</a>
 </div>
 ```
 
-### Box s hlavičkou
-
-```html
-<div class="card">
-  <div class="card-header">
-    <h2 class="card-title">Nadpis</h2>
-    <p class="page-subtitle" style="margin-top: 0.25rem;">Popis sekce</p>
-  </div>
-  <div class="card-body">
-    <!-- Obsah -->
-  </div>
-</div>
-```
-
-### Box bez nadpisu
-
-```html
-<div class="card">
-  <div class="card-body">
-    <!-- Obsah bez nadpisu -->
-  </div>
-</div>
-```
-
-### Stránka Nastavení – mřížka vstupních karet
-
-Stránka typu „Nastavení“ (výběr podmodulů) používá **mřížku 2 sloupce** a karty s pevnou velikostí **620×120 px**. Každá karta je odkaz s názvem a šipkou vpravo. V app.css definujte např. `.settings-grid` a `.settings-card`.
-
-```html
-<div class="settings-grid page-content-box">
-  <a href="/settings/podmodul-1" class="settings-card">
-    <span class="settings-card-title">Podmodul 1</span>
-    <span class="settings-card-arrow">→</span>
-  </a>
-  <a href="/settings/podmodul-2" class="settings-card">
-    <span class="settings-card-title">Podmodul 2</span>
-    <span class="settings-card-arrow">→</span>
-  </a>
-</div>
-```
-
-- Kontejner: `.settings-grid` (grid 2 sloupce, gap), `.page-content-box` pro minimální výšku.
-- Karta: `.settings-card` (620×120 px, flex, hover), `.settings-card-title`, `.settings-card-arrow`.
-
-### Více boxů vedle sebe
-
-```html
-<div class="card-grid">
-  <div class="card">
-    <h2 class="card-title">Sekce 1</h2>
-    <div class="card-body"><!-- Obsah --></div>
-  </div>
-  <div class="card">
-    <h2 class="card-title">Sekce 2</h2>
-    <div class="card-body"><!-- Obsah --></div>
-  </div>
-</div>
-```
-
-V app.css: `.card-grid` (např. `display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;` a na mobilu jeden sloupec).
-
----
-
-## Layout vzory
-
-### Jednoduchá stránka s jednou sekcí
-
-```html
-{% extends "base.html" %}
-{% block title %}{{ page_title }}{% endblock %}
-
-{% block content %}
-<div class="page-header">
-  <h1 class="page-title">{{ page_title }}</h1>
-  {% if page_description %}<p class="page-subtitle">{{ page_description }}</p>{% endif %}
-</div>
-
-<div class="card">
-  <div class="card-body">
-    <!-- Obsah -->
-  </div>
-</div>
-{% endblock %}
-```
-
-### Stránka s více sekcemi
-
-```html
-{% extends "base.html" %}
-{% block title %}{{ page_title }}{% endblock %}
-
-{% block content %}
-<div class="page-header">
-  <h1 class="page-title">{{ page_title }}</h1>
-  {% if page_description %}<p class="page-subtitle">{{ page_description }}</p>{% endif %}
-</div>
-
-<div class="card">
-  <h2 class="card-title">Sekce 1</h2>
-  <div class="card-body"><!-- Obsah --></div>
-</div>
-
-<div class="card">
-  <h2 class="card-title">Sekce 2</h2>
-  <div class="card-body"><!-- Obsah --></div>
-</div>
-{% endblock %}
-```
-
-### Dvousloupcový layout
-
-```html
-{% extends "base.html" %}
-{% block title %}{{ page_title }}{% endblock %}
-
-{% block content %}
-<div class="page-header">
-  <h1 class="page-title">{{ page_title }}</h1>
-  {% if page_description %}<p class="page-subtitle">{{ page_description }}</p>{% endif %}
-</div>
-
-<div class="card-grid">
-  <div class="card">
-    <h2 class="card-title">Levý sloupec</h2>
-    <div class="card-body"><!-- Obsah --></div>
-  </div>
-  <div class="card">
-    <h2 class="card-title">Pravý sloupec</h2>
-    <div class="card-body"><!-- Obsah --></div>
-  </div>
-</div>
-{% endblock %}
-```
-
-### Stránka s formulářem
-
-```html
-{% extends "base.html" %}
-{% block title %}{{ page_title }}{% endblock %}
-
-{% block content %}
-<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
-  <div>
-    <h1 class="page-title">{{ page_title }}</h1>
-    {% if page_description %}<p class="page-subtitle">{{ page_description }}</p>{% endif %}
-  </div>
-  <a href="/path/to/back" class="btn btn-outline btn-sm">← Zpět</a>
-</div>
-
-<div class="card">
-  <div class="card-body">
-    <form method="post" action="/path/to/submit">
-      <!-- form-group pole dle TEMPLATE_COMPONENTS -->
-      <div class="form-actions">
-        <a href="/path/to/back" class="btn btn-outline">Zrušit</a>
-        <button type="submit" class="btn btn-primary">Uložit</button>
-      </div>
-    </form>
-  </div>
-</div>
-{% endblock %}
-```
-
----
-
-## Navigace
-
-### Tabs jako tlačítka (v obsahu stránky)
-
-Pro záložky uvnitř stránky (ne hlavní menu). V app.css definujte např. `.tabs` (flex, gap) a `.tabs-item`, `.tabs-item--active` (vzhled tlačítka / aktivní stav):
-
-```html
-<div class="tabs">
-  <a href="/path/to/tab1" class="tabs-item {% if current_tab == 'tab1' %}tabs-item--active{% endif %}">Tab 1</a>
-  <a href="/path/to/tab2" class="tabs-item {% if current_tab == 'tab2' %}tabs-item--active{% endif %}">Tab 2</a>
-</div>
-```
-
-**Hlavní navigace v hlavičce** má pevnou velikost tlačítek 150×40 px a je popsána v [TEMPLATE_MENU.md](./TEMPLATE_MENU.md).
-
-### Navigační tlačítka v hlavičce
-
-```html
-<div style="display: flex; gap: 0.75rem;">
-  <a href="/path/to/new" class="btn btn-primary">Nová položka</a>
-  <a href="/path/to/history" class="btn btn-secondary">Historie</a>
-</div>
-```
-
-(Případně definujte v app.css třídu např. `.page-header-actions` pro flex a gap.)
-
----
-
-## Auth layout (přihlašovací stránky)
-
-Přihlašovací a ověřovací stránky používají **jiný layout než standardní stránky** — centrovaná karta, bez navigačního obsahu.
-
-> **Zdroj pravdy pro auth stránky: [TEMPLATE_AUTH.md](./TEMPLATE_AUTH.md)**
->
-> Tam najdeš: přesné CSS definice, vizuální popis login page prvek po prvku, kompletní HTML šablony (login, check-email), JS logiku PassKey i backend routes. Tato sekce slouží jen jako přehled — pro implementaci nebo úpravu auth stránek vždy otevři TEMPLATE_AUTH.md.
-
-### Přehled CSS tříd (definice jsou v TEMPLATE_AUTH.md)
-
-| Třída | Účel |
-|---|---|
-| `.auth-container` | Centruje kartu na stránce (flex, min-height 60vh) |
-| `.auth-card` | Omezuje šířku karty na max 400 px |
-| `.auth-title` | Nadpis auth stránky — 1.5rem, tučný, vycentrovaný |
-| `.auth-subtitle` | Podnadpis / instrukce — šedý, vycentrovaný |
-| `.alert--error` | Inline chybová zpráva na login page |
-| `.alert--success` | Inline úspěšná zpráva |
-| `.alert--info` | Inline informační zpráva |
+`.sticky-actions` (plovoucí lišta nad obsahem) použij jen tam, kde uživatel pracuje dlouho
+a potřebuje uložit kdykoli — třeba kontrola importu. Na běžném formuláři překáží.
 
 ---
 
 ## Prázdný stav
 
-V app.css lze definovat třídu `.empty-state` (středovaný blok, ikona, nadpis, text, tlačítko).
-
-### Standardní prázdný stav
+Prázdný stav vysvětlí, co se stane, a nabídne první krok:
 
 ```html
-<div class="empty-state">
-  <div class="empty-state-icon"><!-- ikona nebo obrázek --></div>
-  <h3 class="empty-state-title">Žádné položky</h3>
-  <p class="empty-state-text">Zatím zde nejsou žádné položky k zobrazení.</p>
-  <a href="/path/to/new" class="btn btn-primary">Přidat první položku</a>
+{% from "_macros.html" import empty_state %}
+
+<div class="card">
+  {% call empty_state('cart', 'Seznam je prázdný', 'Přidejte položky z plánu nebo ručně.') %}
+    <a href="/plan" class="btn btn-primary">{{ icon('calendar', 18) }}Otevřít plán</a>
+  {% endcall %}
 </div>
 ```
 
-### Prázdný stav v boxu
+Rozlišuj dva různé prázdné stavy:
+
+| Situace | Text | Akce |
+|---------|------|------|
+| Zatím nic nevzniklo | „Sbírka je zatím prázdná“ | vytvořit první záznam |
+| Filtr nic nenašel | „Nic jsme nenašli“ | zrušit filtr |
+
+---
+
+## Přihlašovací stránky
+
+Bez hlavičky a zápatí (`hide_chrome`), obsah je vycentrovaný:
 
 ```html
-<div class="card">
-  <div class="card-body">
-    {% if items %}
-      <!-- Obsah s položkami -->
-    {% else %}
-      <div class="empty-state">
-        <div class="empty-state-icon"><!-- ikona --></div>
-        <h3 class="empty-state-title">Žádné položky</h3>
-        <p class="empty-state-text">Zatím zde nejsou žádné položky k zobrazení.</p>
-        <a href="/path/to/new" class="btn btn-primary">Přidat první položku</a>
+<div class="auth-container">
+  <div class="card auth-card">
+    <div class="card-body">
+      <div class="auth-logo">
+        <span class="logo-mark">{{ icon('home', 28) }}</span>
+        <div>
+          <h1 class="auth-title">{{ app_name }}</h1>
+          <p class="auth-subtitle">Krátký podtitul</p>
+        </div>
       </div>
-    {% endif %}
+      <form method="post" action="/auth/login">…</form>
+      <div class="divider-text">nebo</div>
+      <button class="btn btn-outline btn-block btn-lg">Druhá možnost</button>
+    </div>
   </div>
 </div>
 ```
 
----
-
-## Best practices
-
-1. **Kontejner** – Hlavní obsah je v `<main class="container">` v base.html; v bloku `content` nepřepisujte šířku, kontejner ji určuje.
-2. **Hlavička** – Používejte `.page-header`, `.page-title`, `.page-subtitle`; volitelně navigační tlačítka `.btn` vpravo.
-3. **Sekce** – Jedna sekce = jeden `.card` s `.card-title` a `.card-body`; více boxů vedle sebe = `.card-grid` + `.card`.
-4. **Formuláře** – Třídy `.form-group`, `.form-label`, `.input`, `.form-actions`, `.btn` (viz TEMPLATE_COMPONENTS).
-5. **Prázdný stav** – Třída `.empty-state` (v app.css) s ikonou, nadpisem, textem a tlačítkem `.btn btn-primary`.
-6. **Transitions** – Interaktivní prvky (tlačítka, odkazy) mají přechody definované v app.css u `.btn` a příbuzných tříd.
-7. **Responzivita** – Mřížky (`.card-grid`, `.settings-grid`) definujte v app.css s media queries dle potřeby.
-8. **Konzistentní názvy** – Titulky stránek a sekcí předávejte z backendu; pro nadpisy sekcí používejte `.card-title`.
+Detaily přihlášení řeší skill `web-app-auth`.
 
 ---
 
-## Shrnutí
+## Responzivita
 
-Tato šablona layoutu poskytuje:
+| Šířka | Co se mění |
+|-------|-----------|
+| < 640 px | jeden sloupec, tlačítka v `.page-actions` na celou šířku, karty s menším odsazením |
+| < 900 px | skryje se hlavní menu v hlavičce, zobrazí se spodní lišta; master–detail se střídá |
+| ≥ 900 px | dvousloupcové layouty, postranní panely `position: sticky` |
+| ≥ 1100 px | plná šířka `--container`; přepínač širší stránky v zápatí |
 
-✅ **Konzistentní strukturu** všech stránek  
-✅ **Standardizované sekce** a boxy  
-✅ **Univerzální vzory** pro různé typy stránek  
-✅ **Best practices** pro kvalitní layout  
+Pravidla:
 
-Při vytváření nových stránek vždy dodržujte tyto konvence pro zajištění jednotného vzhledu napříč celým systémem.
-
+- Testuj 375, 768 a 1440 px a obě varianty motivu.
+- Nikdy nepiš pevné šířky v px do šablon — od toho jsou mřížky a `--container`.
+- Dotykové cíle minimálně 44 px; u ikonových tlačítek `.btn-icon` (drží poměr stran).
+- Vodorovné scrollování je chyba; dlouhé tabulky obal `.table-wrap`.

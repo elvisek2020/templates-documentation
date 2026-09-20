@@ -1,163 +1,155 @@
-# Šablona menu – Navigace v aplikaci
+# Hlavní menu
 
-Tento dokument popisuje strukturu hlavní navigace (menu) podle aktuálního designu aplikace. Použijte tyto vzory pro konzistentní menu.
+Navigace je na dvou místech v `base.html`: v hlavičce (desktop) a ve spodní liště (mobil).
+Každá položka musí být na obou místech, jinak na telefonu zmizí.
 
-## 📋 Obsah
+## Obsah
 
-1. [Struktura menu](#struktura-menu)
-2. [Klikací nadpis („domů“)](#klikací-nadpis-domů)
-3. [Položky záložek – desktop](#položky-záložek--desktop)
-4. [Položky záložek – mobil](#položky-záložek--mobil)
-5. [Blok uživatele a hamburger](#blok-uživatele-a-hamburger)
-6. [Aktivní stav (current_tab)](#aktivní-stav-current_tab)
-7. [Přidání nové položky](#přidání-nové-položky)
-8. [Best practices](#best-practices)
-
----
-
-## Struktura menu
-
-Menu se zobrazuje na **dvou místech** v `base.html`:
-
-| Místo | Kontejner | Popis |
-|-------|-----------|--------|
-| **Desktop** | `<nav class="nav ...">` (třídy z app.css) | Horizontální pruh v hlavičce, střed stránky |
-| **Mobil** | `<nav id="mobile-menu" class="...">` | Boční panel (hamburger), fixed vpravo |
-
-**Pravidlo:** Každou novou záložku je nutné přidat na **obou** místech se stejnými třídami a rozměry.
+1. [Pravidla](#pravidla)
+2. [Hlavička — desktop](#hlavička--desktop)
+3. [Spodní lišta — mobil](#spodní-lišta--mobil)
+4. [Panel „Více“](#panel-více)
+5. [Banner probíhající akce](#banner-probíhající-akce)
+6. [Aktivní stav](#aktivní-stav)
+7. [Přidání položky](#přidání-položky)
 
 ---
 
-## Klikací nadpis („domů“)
+## Pravidla
 
-První prvek v hlavičce není záložka „Přehled“, ale **klikací nadpis** aplikace (odkaz na přehled `/`).
+- **Maximálně čtyři hlavní záložky.** Co se nevejde, patří do panelu „Více“ nebo do nastavení.
+- Položky pojmenuj podle toho, co uživatel dělá („Vyřídit dnes“), ne podle tabulek („Fronta“).
+- Název aplikace vlevo je odkaz na domovskou stránku, ne záložka.
+- Aktivní stav řídí backend proměnnou `current_tab`, ne JavaScript ani URL v šabloně.
+- Administrativní věci (nastavení, odhlášení) nejsou mezi hlavními záložkami — patří
+  vpravo do hlavičky jako ikony a do panelu „Více“ na mobilu.
+- Když aplikace běží pro jednoho uživatele bez přihlašování, skryj celé nastavení
+  i odhlášení (`{% if not auth_disabled %}`).
 
-- **Přihlášený uživatel:** nadpis je odkaz `<a href="/">` s textem názvu aplikace.
-- **Nepřihlášený:** nadpis je obyčejný `<h1>` bez odkazu.
+---
 
-**Desktop – klikací nadpis:**
+## Hlavička — desktop
 
 ```html
-{% if user %}
-<a href="/" class="text-xl font-bold shrink-0 hover:text-blue-600 transition-colors {% if current_tab == 'dashboard' %}text-blue-600{% else %}text-gray-900{% endif %}" title="Přehled">{{ app_name }}</a>
-{% else %}
-<h1 class="text-xl font-bold text-gray-900 shrink-0">{{ app_name }}</h1>
-{% endif %}
+<header class="header">
+    <div class="header-inner">
+        <div class="header-left">
+            <a href="/" class="logo" title="{{ app_name }}">
+                <span class="logo-mark">{{ icon('home', 20) }}</span>
+                <span>{{ app_name }}</span>
+            </a>
+            <nav class="nav" aria-label="Hlavní navigace">
+                <a href="/zakazky" class="nav-item {% if current_tab == 'zakazky' %}nav-item--active{% endif %}"
+                   {% if current_tab == 'zakazky' %}aria-current="page"{% endif %}>{{ icon('list', 18) }}Zakázky</a>
+                <a href="/kalendar" class="nav-item {% if current_tab == 'kalendar' %}nav-item--active{% endif %}">{{ icon('calendar', 18) }}Kalendář</a>
+                <a href="/faktury" class="nav-item {% if current_tab == 'faktury' %}nav-item--active{% endif %}">{{ icon('file', 18) }}Faktury</a>
+            </nav>
+        </div>
+        <div class="header-right">
+            {% if not auth_disabled %}
+            <span class="user-chip header-desktop-only" title="{{ current_user.email }}">{{ current_user.display_name or current_user.email }}</span>
+            <a href="/settings" class="btn btn-ghost btn-icon header-desktop-only {% if current_tab == 'settings' %}is-on{% endif %}"
+               title="Nastavení" aria-label="Nastavení">{{ icon('settings') }}</a>
+            <a href="/auth/logout" class="btn btn-ghost btn-icon header-desktop-only" title="Odhlásit" aria-label="Odhlásit">{{ icon('logout') }}</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
 ```
 
-- Aktivní stav (na přehledu): `text-blue-600`.
-- Neaktivní: `text-gray-900`, hover: `hover:text-blue-600`.
+Záložka `.nav-item` má pevnou šířku 150 px a výšku 40 px, ikonu vlevo a text vpravo.
+Pod 900 px se celé `.nav` i prvky s `.header-desktop-only` skrývají.
 
 ---
 
-## Položky záložek – desktop
+## Spodní lišta — mobil
 
-Záložky mají **pevnou velikost 150×40 px**, středově zarovnaný text. Aktivní záložka je modrá, neaktivní šedá s hover efektem. Třídy lze definovat v app.css (např. `.nav-item`, `.nav-item--active`) a v šabloně je pouze použít; níže jsou pro ilustraci uvedeny i konkrétní vlastnosti, které tyto třídy zastupují.
-
-**Třídy položky (desktop):**
-
-- Kontejner: `inline-flex items-center justify-center w-[150px] h-[40px] rounded-lg text-sm font-medium transition-colors whitespace-nowrap`
-- Aktivní: `bg-blue-600 text-white`
-- Neaktivní: `bg-gray-100 text-gray-700 hover:bg-gray-200`
-
-**Příklad – jedna položka (desktop):**  
-V app.css použijte třídy `.nav-item` a pro aktivní stav `.nav-item.active` nebo `.nav-item--active` (reference_app.css obsahuje obě varianty). Níže je ilustrační příklad s konkrétními vlastnostmi (150×40 px, barvy); v reálné šabloně stačí např. `class="nav-item {% if current_tab == 'modul_a' %}nav-item--active{% endif %}"`.
+Stejné položky jako v hlavičce plus tlačítko „Více“. Zobrazuje se pod 900 px.
 
 ```html
-<nav class="nav" aria-label="Hlavní navigace">
-  <a href="/modul-a" class="nav-item {% if current_tab == 'modul_a' %}nav-item--active{% endif %}">Modul A</a>
-  <a href="/modul-b" class="nav-item {% if current_tab == 'modul_b' %}nav-item--active{% endif %}">Modul B</a>
-  <!-- ... další položky ... -->
-  <a href="/settings" class="nav-item {% if current_tab == 'settings' %}nav-item--active{% endif %}">Nastavení</a>
+<nav class="tabbar" aria-label="Hlavní navigace">
+    <a href="/zakazky" class="tabbar-item {% if current_tab == 'zakazky' %}is-active{% endif %}">{{ icon('list', 22) }}Zakázky</a>
+    <a href="/kalendar" class="tabbar-item {% if current_tab == 'kalendar' %}is-active{% endif %}">{{ icon('calendar', 22) }}Kalendář</a>
+    <a href="/faktury" class="tabbar-item {% if current_tab == 'faktury' %}is-active{% endif %}">{{ icon('file', 22) }}Faktury</a>
+    <button type="button" class="tabbar-item {% if current_tab == 'settings' %}is-active{% endif %}"
+            onclick="document.body.classList.add('mobile-nav-open')" aria-label="Další volby">{{ icon('menu', 22) }}Více</button>
 </nav>
 ```
 
-**Poznámka:** Záložka „Přehled“ v menu není – přechod na přehled je přes klik na název aplikace. Některé sekce mohou být uvnitř stránky Nastavení (karty odkazující na podstránky).
+Lišta má čtyři sloupce — při jiném počtu uprav `grid-template-columns` u `.tabbar`
+v app.css. `<body class="has-tabbar">` přidá obsahu spodní odsazení, aby lišta nic nepřekryla.
 
 ---
 
-## Položky záložek – mobil
+## Panel „Více“
 
-Mobilní menu je **vysouvací panel** (fixed vpravo, šířka např. `w-64 max-w-[85vw]`). Položky mají stejnou velikost jako na desktopu: **150×40 px**.
-
-**Struktura mobilního menu:**
-
-- Overlay: `fixed inset-0 bg-gray-600 bg-opacity-50 z-40 hidden lg:hidden` (id např. `mobile-menu-overlay`).
-- Panel: fixovaný vpravo, full výška, šířka např. 16rem, max 85vw; v app.css třída pro výchozí stav (skrytý) a pro otevřený stav; na desktopu skrytý (např. `@media (min-width: 1024px) { display: none }`).
-- Hlavička panelu: „Menu“ + tlačítko zavřít (X).
-- Obsah: stejné položky jako desktop, první položka = název aplikace (odkaz na `/`).
-
-**Příklad – jedna položka (mobil):**  
-Reference_app.css definuje `.mobile-nav-item` a `.mobile-nav-item.active`; v šabloně použijte např. `class="mobile-nav-item {% if current_tab == 'dashboard' %}active{% endif %}"`.
+Vysouvací panel zespodu s tím, co se do lišty nevešlo:
 
 ```html
-<a href="/" class="mobile-nav-item {% if current_tab == 'dashboard' %}active{% endif %}">{{ app_name }}</a>
-<a href="/modul-a" class="mobile-nav-item {% if current_tab == 'modul_a' %}active{% endif %}">Modul A</a>
-<!-- ... -->
+<div class="mobile-nav-overlay" onclick="document.body.classList.remove('mobile-nav-open')"></div>
+<div class="mobile-nav-panel" role="dialog" aria-label="Další volby">
+    <div class="mobile-nav-header">
+        <span class="mobile-nav-user">{% if not auth_disabled %}{{ current_user.email }}{% endif %}</span>
+        <button type="button" class="btn btn-ghost btn-icon btn-sm"
+                onclick="document.body.classList.remove('mobile-nav-open')" aria-label="Zavřít">{{ icon('x') }}</button>
+    </div>
+    <div class="mobile-nav-links">
+        <a href="/zakazky/nova" class="mobile-nav-item">{{ icon('plus') }}Nová zakázka</a>
+        {% if not auth_disabled %}
+        <div class="mobile-nav-divider"></div>
+        <a href="/settings" class="mobile-nav-item {% if current_tab == 'settings' %}active{% endif %}">{{ icon('settings') }}Nastavení</a>
+        <a href="/auth/logout" class="mobile-nav-item">{{ icon('logout') }}Odhlásit</a>
+        {% endif %}
+    </div>
+</div>
 ```
 
-Otevírání/zavírání: tlačítko hamburger přidá/odebere na panel třídu pro skrytí (např. v app.css) a zobrazí/skryje overlay; při otevření `document.body.style.overflow = 'hidden'`, při zavření vráceno.
+Panel se zavírá klepnutím mimo, křížkem i klávesou Escape (obstarává `app.js`).
 
 ---
 
-## Blok uživatele a hamburger
+## Banner probíhající akce
 
-V hlavičce vpravo:
+Pruh pod hlavičkou, který drží rozdělanou práci na očích — rozpracovaný záznam, běžící
+import, otevřená směna. Na všech stránkách kromě té, kam vede.
 
-- **Blok uživatele:** jméno (např. `{{ user.display_name or user.username }}`) a odkaz „Odhlásit“. Kontejner např. `flex items-center gap-2 shrink-0 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 shadow-sm`.
-- **Hamburger tlačítko:** pouze na mobilu (`lg:hidden`), `aria-label="Otevřít menu"`. Klikem se otevře mobilní menu.
+```html
+{% if active_job and current_tab != 'job' %}
+<div class="action-banner">
+    <a href="/prace/{{ active_job.id }}">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span class="action-banner-title">Probíhá: <strong>{{ active_job.title }}</strong></span>
+        <span class="action-banner-cta">Pokračovat {{ icon('arrow-right', 16) }}</span>
+    </a>
+</div>
+{% endif %}
+```
+
+Data plní společná funkce kontextu stránky (`page_ctx`), ne jednotlivé routery — viz
+skill `web-app-stack`.
 
 ---
 
-## Aktivní stav (current_tab)
+## Aktivní stav
 
-Aktivní záložka se určuje podle **proměnné z backendu** `current_tab`, ne podle `request.url.path` v šabloně.
-
-| current_tab   | Stránka / sekce      |
-|---------------|----------------------|
-| `dashboard`   | Přehled (/)          |
-| `modul_a`     | První modul           |
-| `modul_b`     | Druhý modul           |
-| `settings`    | Nastavení (a podstránky) |
-
-**Backend:** Při vykreslení stránky předat do šablony `current_tab` (např. `"modul_a"`). V FastAPI:
+Router předá `current_tab`:
 
 ```python
 return templates.TemplateResponse(
-    "modul_a.html",
-    {"request": request, "user": user, "current_tab": "modul_a", ...},
+    "zakazky/list.html",
+    page_ctx(request, current_tab="zakazky", items=items),
 )
 ```
 
-V šabloně pak `{% if current_tab == 'modul_a' %}bg-blue-600 text-white{% else %}...{% endif %}`.
+Podstránky patří pod nadřazenou záložku: detail i editace zakázky mají `current_tab="zakazky"`.
+Číselníky a nastavení mají vlastní hodnotu, aby se žádná záložka nezvýrazňovala omylem.
 
 ---
 
-## Přidání nové položky
+## Přidání položky
 
-1. **Backend:** Přidat route a v kontextu šablony vždy posílat `current_tab` (např. `"muj_modul"`).
-2. **base.html – desktop:** Do `<nav class="nav ...">` vložit nový odkaz s třídami `nav-item` a `nav-item--active` podle `current_tab`.
-3. **base.html – mobil:** Do kontejneru mobilního menu vložit stejnou položku s třídami `mobile-nav-item` a `active` podle `current_tab`.
-4. Pořadí položek na desktopu a v mobilu udržujte shodné.
-
----
-
-## Best practices
-
-1. **Dvojice desktop + mobil** – každou záložku přidat na obě místa se stejnou velikostí (150×40) a stejným aktivním stavem.
-2. **Jednotná velikost** – všechny záložky `w-[150px] h-[40px]`, bez výjimek.
-3. **Aktivní stav** – vždy z backendu (`current_tab`), ne počítat z URL v šabloně.
-4. **Klikací nadpis** – přehled (dashboard) je dostupný přes název aplikace, ne přes samostatnou záložku „Přehled“.
-5. **Sekce pod Nastavením** – některé položky mohou být karty na stránce Nastavení (`/settings`) místo záložek v hlavním menu.
-6. **Přístupnost** – `aria-label` na nav a na tlačítku hamburger, u odkazů smysluplný text.
-
----
-
-## Shrnutí
-
-- **Klikací nadpis** (název aplikace) vede na přehled; záložka „Přehled“ v menu není.
-- **Záložky** mají pevnou velikost **150×40 px**, aktivní stav podle `current_tab` z backendu.
-- **Desktop i mobil** používají stejné styly položek; mobil = vysouvací panel s overlay.
-- **Podsekce** lze umístit na stránku Nastavení jako karty (viz TEMPLATE_LAYOUT – mřížka vstupních karet).
-
-Při úpravách menu vždy upravte obě sekce v `base.html` a předávejte `current_tab` z aplikace.
+1. Přidej odkaz do `.nav` v hlavičce.
+2. Přidej stejný odkaz do `.tabbar` (a případně uprav počet sloupců v app.css).
+3. Pokud se nevejde mezi čtyři, dej ji do panelu „Více“.
+4. Ve všech routerech modulu nastav `current_tab`.
+5. Zkontroluj na šířce 375 px, že se texty v liště nelámou.

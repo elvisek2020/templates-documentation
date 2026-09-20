@@ -21,3 +21,15 @@ Standardní přihlašování má dvě metody: **Magic Link** (e-mail s jednoráz
 - Správa passkeys (registrace, přejmenování, smazání) patří na stránku nastavení uživatele.
 - Validuj vstupy na klientovi i serveru; chyby loguj, ale uživateli vracej obecné hlášky (žádné prozrazování existence účtu).
 - Žádné tajné údaje natvrdo — konfigurace přes proměnné prostředí.
+- Přístup řeš allowlistem e-mailů (`AUTH_ALLOWED_EMAILS`), ne otevřenou registrací.
+- Pro lokální provoz jednoho uživatele je `AUTH_DISABLED=true`: aplikace běží bez
+  přihlášení pod jedním účtem. V takovém režimu **skryj celé nastavení účtu, odhlášení
+  i jméno uživatele** — nemají co nabídnout. V produkci musí zůstat `false`.
+- Pomocné funkce pro WebAuthn (`passkeyLogin`, `passkeyRegister`, převody base64url)
+  patří do `app/static/js/app.js` vedle ostatního chování stránky.
+
+## Související skilly
+
+- Vzhled přihlašovací stránky (`.auth-container`, `.auth-card`) → `web-app-ui`
+- Zbytek `app.js` a chování stránky → `web-app-interactions`
+- Odesílání magic link e-mailů → `web-app-smtp`

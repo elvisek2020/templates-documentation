@@ -1,0 +1,148 @@
+/*
+ * theme_corporate.css — paleta pro firemní a pracovní aplikace
+ * -----------------------------------------------------------------------------
+ * Střízlivé neutrální povrchy, modrá akcentní barva, bezpatková písma ze systému
+ * (žádná externí písma = nic se nenačítá z cizích serverů).
+ * Vhodné pro interní nástroje, evidence, administrace, reporty.
+ *
+ * Nahrává se PŘED reference_app.css:
+ *     cat theme_corporate.css reference_app.css > app/static/css/app.css
+ *
+ * Změna akcentní barvy = tři tokeny: --color-primary, --color-primary-hover,
+ * --color-primary-soft (a jejich tmavé protějšky níže).
+ *
+ * POZOR: tmavé hodnoty jsou ve dvou blocích (podle systému / ruční volba).
+ * Když měníš jeden, změň i druhý — musí zůstat shodné.
+ */
+
+:root {
+    color-scheme: light;
+
+    /* Povrchy a linky */
+    --color-bg: #f5f6f8;
+    --color-surface: #ffffff;
+    --color-surface-2: #eef0f4;
+    --color-surface-3: #e2e6ec;
+    --color-border: #dfe3ea;
+    --color-border-strong: #c2c9d4;
+
+    /* Text */
+    --color-text: #16191f;
+    --color-text-2: #3d4653;
+    --color-text-light: #6b7484;
+
+    /* Akcentní barva */
+    --color-primary: #2a5bd7;
+    --color-primary-hover: #1f47ad;
+    --color-primary-soft: #e6ecfc;
+    --color-primary-text: #ffffff;
+
+    /* Stavy */
+    --color-success: #1f7a4d;
+    --color-success-soft: #e3f3ea;
+    --color-warning: #8a5a00;
+    --color-warning-soft: #fbefd4;
+    --color-error: #b42318;
+    --color-error-soft: #fde8e6;
+    --color-on-danger: #ffffff;
+    --color-info: #2f5d7c;
+    --color-info-soft: #e5eff5;
+
+    /* Překryvy (modal, lightbox, mobilní panel) */
+    --color-overlay: rgba(12, 16, 24, 0.45);
+    --color-overlay-strong: rgba(8, 11, 16, 0.88);
+
+    /* Stíny a focus */
+    --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+    --shadow: 0 1px 3px rgba(16, 24, 40, 0.10), 0 4px 12px -6px rgba(16, 24, 40, 0.10);
+    --shadow-lg: 0 18px 40px -12px rgba(16, 24, 40, 0.28);
+    --shadow-up: 0 -10px 18px -14px rgba(16, 24, 40, 0.45);
+    --focus-ring: 0 0 0 3px rgba(42, 91, 215, 0.28);
+
+    /* Písma — systémová, bez externího načítání */
+    --font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* Tmavý režim podle systému — pokud si uživatel ručně nezvolil světlý */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
+
+        --color-bg: #0f1115;
+        --color-surface: #171a20;
+        --color-surface-2: #1e222a;
+        --color-surface-3: #272c36;
+        --color-border: #2b313b;
+        --color-border-strong: #3a424f;
+
+        --color-text: #e9ebef;
+        --color-text-2: #c4cad3;
+        --color-text-light: #8d95a3;
+
+        --color-primary: #7ea2ff;
+        --color-primary-hover: #9ab6ff;
+        --color-primary-soft: #1a2540;
+        --color-primary-text: #0b1220;
+
+        --color-success: #7cc79b;
+        --color-success-soft: #14271d;
+        --color-warning: #e2b263;
+        --color-warning-soft: #2e2413;
+        --color-error: #f28b82;
+        --color-error-soft: #33191a;
+        --color-on-danger: #0b1220;
+        --color-info: #8dbad8;
+        --color-info-soft: #16252f;
+
+        --color-overlay: rgba(0, 0, 0, 0.6);
+        --color-overlay-strong: rgba(0, 0, 0, 0.9);
+
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 6px 16px -8px rgba(0, 0, 0, 0.55);
+        --shadow-lg: 0 20px 44px -12px rgba(0, 0, 0, 0.7);
+        --shadow-up: 0 -10px 18px -14px rgba(0, 0, 0, 0.6);
+        --focus-ring: 0 0 0 3px rgba(126, 162, 255, 0.4);
+    }
+}
+
+/* Ruční volba tmavého režimu (přepínač v zápatí) */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --color-bg: #0f1115;
+    --color-surface: #171a20;
+    --color-surface-2: #1e222a;
+    --color-surface-3: #272c36;
+    --color-border: #2b313b;
+    --color-border-strong: #3a424f;
+
+    --color-text: #e9ebef;
+    --color-text-2: #c4cad3;
+    --color-text-light: #8d95a3;
+
+    --color-primary: #7ea2ff;
+    --color-primary-hover: #9ab6ff;
+    --color-primary-soft: #1a2540;
+    --color-primary-text: #0b1220;
+
+    --color-success: #7cc79b;
+    --color-success-soft: #14271d;
+    --color-warning: #e2b263;
+    --color-warning-soft: #2e2413;
+    --color-error: #f28b82;
+    --color-error-soft: #33191a;
+    --color-on-danger: #0b1220;
+    --color-info: #8dbad8;
+    --color-info-soft: #16252f;
+
+    --color-overlay: rgba(0, 0, 0, 0.6);
+    --color-overlay-strong: rgba(0, 0, 0, 0.9);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 6px 16px -8px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 20px 44px -12px rgba(0, 0, 0, 0.7);
+    --shadow-up: 0 -10px 18px -14px rgba(0, 0, 0, 0.6);
+    --focus-ring: 0 0 0 3px rgba(126, 162, 255, 0.4);
+}

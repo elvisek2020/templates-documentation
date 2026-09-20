@@ -20,4 +20,16 @@ Kontejnerizace se řídí ověřenými vzory z reálných projektů.
 - Interní port aplikace je standardně `8000`.
 - Konfigurace přes proměnné prostředí, žádné tajné údaje v image ani v compose souboru.
 - Volumes přidávej jen pokud jsou výslovně potřeba (persistentní data — SQLite, uploads).
+- **Volume musí být zapisovatelné uživatelem, pod kterým aplikace běží** (typicky UID 1000).
+  Chybná práva se projeví až při prvním nahrání souboru, ne při startu.
 - Pro DB na hostu použij vzor přístupu k hostiteli z reference.
+- Verzi v `app/static/version.json` zvyš při každém vydání — aplikace ji čte při startu,
+  takže se projeví až po novém kontejneru. Bez toho drží prohlížeče staré CSS a JS.
+- Nahrává-li aplikace fotky, povol na reverzní proxy dost velké tělo požadavku
+  (`client_max_body_size`), jinak upload spadne dřív, než dojde do aplikace.
+
+## Související skilly
+
+- CI/CD a publikace image → `github-project-setup`
+- Ukládání nahraných souborů → `web-app-media`
+- Konfigurace aplikace a healthcheck endpoint → `web-app-stack`

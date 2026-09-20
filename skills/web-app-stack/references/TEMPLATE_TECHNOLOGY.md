@@ -1,5 +1,11 @@
 # Technologický stack - Architektura a technologie
 
+> **Pro který typ aplikace:** tento dokument popisuje **portál s moduly**, které se načítají
+> dynamicky a jsou schované za OAuth2 proxy. Pro samostatnou aplikaci s vlastním přihlášením
+> (běžný případ) platí [TEMPLATE_APP_SKELETON.md](TEMPLATE_APP_SKELETON.md) — jiná struktura
+> registrace routerů, jiná autentizace, databáze přes SQLAlchemy Core.
+
+
 Tento dokument popisuje technologický stack a architekturu používanou pro vývoj webových aplikací. Poskytuje přehled všech technologií, jejich účelu a způsobu použití.
 
 ## 📋 Obsah

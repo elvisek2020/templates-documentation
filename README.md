@@ -9,7 +9,9 @@ Kolekce agent skills, které drží konzistentní vzhled, architekturu a provozn
 ├── README.md
 └── skills/
     ├── web-app-ui/
+    ├── web-app-interactions/
     ├── web-app-stack/
+    ├── web-app-media/
     ├── web-app-auth/
     ├── web-app-smtp/
     ├── web-app-docker/
@@ -20,8 +22,10 @@ Kolekce agent skills, které drží konzistentní vzhled, architekturu a provozn
 
 | Skill | Oblast |
 |-------|--------|
-| `web-app-ui` | Stránky, komponenty, menu, footer, styly z app.css |
-| `web-app-stack` | Technologický stack a architektura (FastAPI, HTMX, SQLite, moduly) |
+| `web-app-ui` | Design systém app.css (firemní i osobní paleta, tmavý režim), stránky, komponenty, menu, zápatí |
+| `web-app-interactions` | Chování stránky — potvrzení akcí, toasty, lightbox, přepínač motivu, HTMX vzory |
+| `web-app-stack` | Architektura — kostra aplikace, moduly, databáze, kontext šablon, filtry |
+| `web-app-media` | Fotky a soubory — nahrávání, náhledy, galerie, doručení |
 | `web-app-auth` | Přihlášení — Magic Link + PassKey/WebAuthn |
 | `web-app-smtp` | Odesílání e-mailů (aiosmtplib, TLS/STARTTLS) |
 
@@ -64,13 +68,24 @@ rm -rf /tmp/templates-skills
 
 ### Jednotlivé skills přes curl
 
-**web-app-ui** (stránky, komponenty, menu, footer, styly):
+**web-app-ui** (design systém, stránky, komponenty, menu, zápatí):
 
 ```bash
 mkdir -p "$DEST/web-app-ui/references"
 curl -fsSL "$BASE/web-app-ui/SKILL.md" -o "$DEST/web-app-ui/SKILL.md"
-for f in TEMPLATE_LAYOUT.md TEMPLATE_COMPONENTS.md TEMPLATE_MENU.md TEMPLATE_FOOTER.md reference_app.css; do
+for f in TEMPLATE_LAYOUT.md TEMPLATE_COMPONENTS.md TEMPLATE_MENU.md TEMPLATE_FOOTER.md \
+         reference_app.css theme_corporate.css theme_personal.css preview.html; do
   curl -fsSL "$BASE/web-app-ui/references/$f" -o "$DEST/web-app-ui/references/$f"
+done
+```
+
+**web-app-interactions** (chování stránky, app.js, HTMX vzory):
+
+```bash
+mkdir -p "$DEST/web-app-interactions/references"
+curl -fsSL "$BASE/web-app-interactions/SKILL.md" -o "$DEST/web-app-interactions/SKILL.md"
+for f in TEMPLATE_INTERACTIONS.md TEMPLATE_HTMX.md reference_app.js; do
+  curl -fsSL "$BASE/web-app-interactions/references/$f" -o "$DEST/web-app-interactions/references/$f"
 done
 ```
 
@@ -79,7 +94,19 @@ done
 ```bash
 mkdir -p "$DEST/web-app-stack/references"
 curl -fsSL "$BASE/web-app-stack/SKILL.md" -o "$DEST/web-app-stack/SKILL.md"
-curl -fsSL "$BASE/web-app-stack/references/TEMPLATE_TECHNOLOGY.md" -o "$DEST/web-app-stack/references/TEMPLATE_TECHNOLOGY.md"
+for f in TEMPLATE_APP_SKELETON.md TEMPLATE_TECHNOLOGY.md; do
+  curl -fsSL "$BASE/web-app-stack/references/$f" -o "$DEST/web-app-stack/references/$f"
+done
+```
+
+**web-app-media** (fotky a soubory):
+
+```bash
+mkdir -p "$DEST/web-app-media/references"
+curl -fsSL "$BASE/web-app-media/SKILL.md" -o "$DEST/web-app-media/SKILL.md"
+for f in TEMPLATE_MEDIA.md reference_media_gallery.js; do
+  curl -fsSL "$BASE/web-app-media/references/$f" -o "$DEST/web-app-media/references/$f"
+done
 ```
 
 **web-app-auth** (Magic Link + PassKey/WebAuthn):
@@ -120,7 +147,9 @@ Po instalaci stačí v Cursoru nebo Claude Code pracovat normálně — agent si
 **Web app**
 
 - úprava stránky / komponenty / stylů → `web-app-ui`
+- chování stránky, app.js, HTMX → `web-app-interactions`
 - nový modul, architektura, stack → `web-app-stack`
+- fotky, galerie, nahrávání souborů → `web-app-media`
 - přihlášení, magic link, passkey → `web-app-auth`
 - SMTP / e-maily → `web-app-smtp`
 
